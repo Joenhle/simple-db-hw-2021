@@ -6,6 +6,7 @@ import simpledb.common.Debug;
 import simpledb.common.Catalog;
 import simpledb.transaction.TransactionId;
 
+import java.lang.reflect.Array;
 import java.util.*;
 import java.io.*;
 
@@ -72,20 +73,15 @@ public class HeapPage implements Page {
         @return the number of tuples on this page
     */
     private int getNumTuples() {        
-        // some code goes here
-        return 0;
-
+        return (int) Math.floor(((double) BufferPool.getPageSize() * 8) / (td.getSize() * 8 + 1));
     }
 
     /**
      * Computes the number of bytes in the header of a page in a HeapFile with each tuple occupying tupleSize bytes
      * @return the number of bytes in the header of a page in a HeapFile with each tuple occupying tupleSize bytes
      */
-    private int getHeaderSize() {        
-        
-        // some code goes here
-        return 0;
-                 
+    private int getHeaderSize() {
+        return (int) Math.ceil((double) getNumTuples() / 8);
     }
     
     /** Return a view of this page before it was modified
@@ -117,8 +113,7 @@ public class HeapPage implements Page {
      * @return the PageId associated with this page.
      */
     public HeapPageId getId() {
-    // some code goes here
-    throw new UnsupportedOperationException("implement this");
+        return pid;
     }
 
     /**
@@ -202,7 +197,6 @@ public class HeapPage implements Page {
                 Field f = tuples[i].getField(j);
                 try {
                     f.serialize(dos);
-                
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -287,24 +281,36 @@ public class HeapPage implements Page {
      * Returns the number of empty slots on this page.
      */
     public int getNumEmptySlots() {
-        // some code goes here
-        return 0;
+        //⚠️这里是用的numSlots来减的
+        return numSlots - BitSet.valueOf(header).cardinality();
     }
 
     /**
      * Returns true if associated slot on this page is filled.
      */
     public boolean isSlotUsed(int i) {
-        // some code goes here
-        return false;
+        int a = i/8, b = i%8;
+        if (a >= header.length) {
+            System.err.printf("i超出了slot的范围 i = %d, slotNum = %d", i, getNumTuples());
+            System.exit(1);
+        }
+        return ((header[a] & (1 << b)) != 0);
     }
 
     /**
      * Abstraction to fill or clear a slot on this page.
      */
     private void markSlotUsed(int i, boolean value) {
-        // some code goes here
-        // not necessary for lab1
+        int a = i/8, b = i%8;
+        if (a >= header.length) {
+            System.err.printf("i超出了slot的范围 i = %d, slotNum = %d", i, getNumTuples());
+            System.exit(1);
+        }
+        if (value) {
+            header[a] = (byte) (header[a] | (1 << b));
+        } else {
+            header[a] = (byte) (header[a] & ~(1 << b));
+        }
     }
 
     /**
@@ -312,8 +318,22 @@ public class HeapPage implements Page {
      * (note that this iterator shouldn't return tuples in empty slots!)
      */
     public Iterator<Tuple> iterator() {
-        // some code goes here
-        return null;
+        return new Iter();
+    }
+
+    private class Iter implements Iterator<Tuple> {
+        int cursor;
+        @Override
+        public boolean hasNext() {
+            while (cursor < tuples.length && !isSlotUsed(cursor)) {
+                cursor++;
+            }
+            return cursor < tuples.length;
+        }
+        @Override
+        public Tuple next() {
+            return tuples[cursor++];
+        }
     }
 
 }

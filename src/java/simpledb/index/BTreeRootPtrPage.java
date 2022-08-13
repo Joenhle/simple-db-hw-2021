@@ -39,7 +39,9 @@ public class BTreeRootPtrPage implements Page {
 	 */
 	public BTreeRootPtrPage(BTreePageId id, byte[] data) throws IOException {
 		this.pid = id;
-        DataInputStream dis = new DataInputStream(new ByteArrayInputStream(data));
+		DataInputStream dis = new DataInputStream(new ByteArrayInputStream(data));
+
+
 
 		// read in the root pointer
 		root = dis.readInt();
