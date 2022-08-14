@@ -72,15 +72,15 @@ public class HeapFile implements DbFile {
     // see DbFile.java for javadocs
     public Page readPage(PageId pid) {
         try {
+            if (pid.getPageNumber() >= numPages()) {
+                throw new IllegalArgumentException("pidNo" + pid.getPageNumber() + "超出了File拥有的文件范围0~" + numPages());
+            }
             byte[] data = FileUtil.getContent(file, pid.getPageNumber() * BufferPool.getPageSize(), BufferPool.getPageSize());
             HeapPage page = new HeapPage((HeapPageId) pid, data);
             return page;
         } catch (IOException e) {
-            e.printStackTrace();
-            System.err.print(e.getMessage());
-            System.exit(1);
+            throw new RuntimeException(e);
         }
-        return null;
     }
 
     // see DbFile.java for javadocs
@@ -120,58 +120,75 @@ public class HeapFile implements DbFile {
 }
 
 class HeapFileIterator extends AbstractDbFileIterator {
-    private final ArrayList<Tuple> tuples = new ArrayList<>();
-    private int cursor;
-    public HeapFileIterator(HeapFile heapFile, TransactionId tid) {
-        try {
-            int numPage = heapFile.numPages();
-            for (int i = 0; i < numPage; i++) {
-                PageId pid = new HeapPageId(heapFile.getId(), i);
-                HeapPage page = (HeapPage) Database.getBufferPool().getPage(tid, pid, Permissions.READ_WRITE);
-                Iterator<Tuple> iter = page.iterator();
-                while (iter.hasNext()) {
-                    tuples.add(iter.next());
-                }
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-            System.err.println(e.getMessage());
-            System.exit(1);
-        }
-        this.cursor = -1;
+
+    private boolean isOpen;
+    private int curPid;
+    private HeapFile file;
+    private TransactionId tid;
+    private Iterator<Tuple> iter;
+
+    public HeapFileIterator(HeapFile file, TransactionId tid) {
+        this.tid = tid;
+        this.file = file;
+        isOpen = false;
     }
 
     @Override
     public boolean hasNext() throws DbException, TransactionAbortedException {
-        return cursor >= 0 && cursor < tuples.size();
+        if (!isOpen) {
+            return false;
+        }
+        while (!iter.hasNext() && curPid < file.numPages()-1) {
+            curPid++;
+            HeapPage curPage = (HeapPage) file.readPage(new HeapPageId(file.getId(), curPid));
+            iter = curPage.iterator();
+        }
+        return iter.hasNext();
     }
 
     @Override
     public Tuple next() throws DbException, TransactionAbortedException, NoSuchElementException {
-        if (cursor < 0 || cursor >= tuples.size()) {
+        if (!isOpen) {
             throw new NoSuchElementException();
         }
-        return tuples.get(cursor++);
+        Tuple next = readNext();
+        if (next == null) {
+            throw new NoSuchElementException();
+        }
+        return next;
     }
 
     @Override
     public void open() throws DbException, TransactionAbortedException {
-        cursor = 0;
+        isOpen = true;
+        if (iter == null) {
+            HeapPage curPage = (HeapPage) file.readPage(new HeapPageId(file.getId(), curPid));
+            iter = curPage.iterator();
+        }
     }
 
     @Override
     public void close() {
-        cursor = -1;
+        isOpen = false;
     }
 
     @Override
     protected Tuple readNext() throws DbException, TransactionAbortedException {
-        return null;
+        if (!hasNext()) {
+            return null;
+        }
+        return iter.next();
     }
+
 
     @Override
     public void rewind() throws DbException, TransactionAbortedException {
-        cursor = 0;
+        if (!isOpen) {
+            throw new DbException("the iterator hasn't open");
+        }
+        curPid = 0;
+        iter = null;
+        open();
     }
 }
 

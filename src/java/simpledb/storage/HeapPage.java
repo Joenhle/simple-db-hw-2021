@@ -332,6 +332,9 @@ public class HeapPage implements Page {
         }
         @Override
         public Tuple next() {
+            if (cursor >= tuples.length) {
+                return null;
+            }
             return tuples[cursor++];
         }
     }
