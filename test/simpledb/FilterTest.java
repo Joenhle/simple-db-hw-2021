@@ -48,7 +48,7 @@ public class FilterTest extends SimpleDbTestBase {
     op.open();
     assertTrue(op.hasNext());
     assertNotNull(op.next());
-    assertTrue(TestUtil.checkExhausted(op));
+    assertTrue(TestUtil. checkExhausted(op));
 
     op.rewind();
     Tuple expected = Utility.getHeapTuple(0, testWidth);
@@ -66,6 +66,17 @@ public class FilterTest extends SimpleDbTestBase {
     pred = new Predicate(0, Predicate.Op.LESS_THAN, TestUtil.getField(2));
     Filter op = new Filter(pred, scan);
     TestUtil.MockScan expectedOut = new TestUtil.MockScan(-5, 2, testWidth);
+    op.open();
+    TestUtil.compareDbIterators(op, expectedOut);
+    op.close();
+  }
+
+  @Test public void nestedFilter() throws Exception {
+    Predicate greaterThanOp = new Predicate(0, Predicate.Op.GREATER_THAN_OR_EQ, TestUtil.getField(-2));
+    Predicate lessThanOp = new Predicate(0, Predicate.Op.LESS_THAN, TestUtil.getField(2));
+    //todo 这种nested调用改成chain调用或许更好
+    Filter op = new Filter(greaterThanOp, new Filter(lessThanOp, scan));
+    TestUtil.MockScan expectedOut = new TestUtil.MockScan(-2, 2, testWidth);
     op.open();
     TestUtil.compareDbIterators(op, expectedOut);
     op.close();

@@ -1,5 +1,7 @@
 package simpledb.storage;
 
+import simpledb.common.Type;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -40,7 +42,7 @@ public class Tuple implements Serializable {
                     break;
                 case STRING_TYPE:
                     //todo maxsize该怎么设置
-                    fields.add(new StringField("", 200));
+                    fields.add(new StringField("", Type.STRING_LEN));
                     break;
                 default:
                     System.err.printf("没有对应的fieldType");
