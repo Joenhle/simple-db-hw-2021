@@ -65,17 +65,16 @@ public class IntegerAggregator implements Aggregator {
      *            the Tuple containing an aggregate field and a group-by field
      */
     public void mergeTupleIntoGroup(Tuple tup) {
-        Object gbFieldValue;
-        if (groupByFiledType == Type.INT_TYPE) {
-            IntField gbField = (IntField) tup.getField(groupByField);
-            gbFieldValue = gbField.getValue();
-        } else {
-            StringField gbField = (StringField) tup.getField(groupByField);
-            gbFieldValue = gbField.getValue();
+        Object key = -1;
+        boolean noGroup = (groupByField == Aggregator.NO_GROUPING);
+        if (!noGroup) {
+            if (groupByFiledType.equals(Type.INT_TYPE)) {
+                key = ((IntField) tup.getField(groupByField)).getValue();
+            } else {
+                key = ((StringField) tup.getField(groupByField)).getValue();
+            }
         }
         IntField afField = (IntField) tup.getField(affectField);
-        boolean noGroup = (groupByField == Aggregator.NO_GROUPING);
-        Object key = noGroup ? -1 : gbFieldValue;
         int value = afField.getValue();
         if (!noGroup && !innerResMap.containsKey(key)) {
             innerResMap.put(key, new InnerRes());
@@ -203,7 +202,7 @@ public class IntegerAggregator implements Aggregator {
                 throw new IllegalStateException("the iterator hasn't open");
             }
             if (!hasNext()) {
-                return null;
+                throw new NoSuchElementException();
             }
             return iter.next();
         }

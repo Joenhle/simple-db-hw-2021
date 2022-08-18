@@ -39,7 +39,7 @@ public class TupleDesc implements Serializable {
             if (this.getClass() != o.getClass()) {
                 return false;
             }
-            return fieldType == ((TDItem) o).fieldType && fieldName == ((TDItem) o).fieldName;
+            return fieldType.equals(((TDItem) o).fieldType) && fieldName.equals(((TDItem) o).fieldName);
         }
 
         public String toString() {

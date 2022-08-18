@@ -2,11 +2,15 @@ package simpledb.execution;
 
 import simpledb.common.Database;
 import simpledb.common.DbException;
+import simpledb.common.Type;
 import simpledb.storage.BufferPool;
+import simpledb.storage.IntField;
 import simpledb.storage.Tuple;
 import simpledb.storage.TupleDesc;
 import simpledb.transaction.TransactionAbortedException;
 import simpledb.transaction.TransactionId;
+
+import java.io.IOException;
 
 /**
  * Inserts tuples read from the child operator into the tableId specified in the
@@ -14,6 +18,10 @@ import simpledb.transaction.TransactionId;
  */
 public class Insert extends Operator {
 
+    private OpIterator child;
+    private TransactionId tid;
+    private int tableId;
+    private boolean hasInsert;
     private static final long serialVersionUID = 1L;
 
     /**
@@ -29,26 +37,29 @@ public class Insert extends Operator {
      *             if TupleDesc of child differs from table into which we are to
      *             insert.
      */
-    public Insert(TransactionId t, OpIterator child, int tableId)
-            throws DbException {
-        // some code goes here
+    public Insert(TransactionId t, OpIterator child, int tableId) throws DbException {
+        // 底层Insert的时候检验了tuple粒度的，这里有个问题就是SeqScan的tupleDesc可能加了alias，导致他的tupleDesc和我们要添加table的tupleDesc的FiledName不一样，而SeqScan的Tuple的描述有可能符合，所以在底层insert检验即可
+        this.child = child;
+        this.tid = t;
+        this.tableId = tableId;
     }
 
     public TupleDesc getTupleDesc() {
-        // some code goes here
-        return null;
+        return new TupleDesc(new Type[]{Type.INT_TYPE});
     }
 
     public void open() throws DbException, TransactionAbortedException {
-        // some code goes here
+        child.open();
+        super.open();
     }
 
     public void close() {
-        // some code goes here
+        child.close();
+        super.close();
     }
 
     public void rewind() throws DbException, TransactionAbortedException {
-        // some code goes here
+        child.rewind();
     }
 
     /**
@@ -65,18 +76,31 @@ public class Insert extends Operator {
      * @see BufferPool#insertTuple
      */
     protected Tuple fetchNext() throws TransactionAbortedException, DbException {
-        // some code goes here
-        return null;
+        if (hasInsert) {
+            return null;
+        }
+        Tuple tuple = new Tuple(getTupleDesc());
+        int count = 0;
+        while (child.hasNext()) {
+            try {
+                Database.getBufferPool().insertTuple(tid, tableId, child.next());
+                count++;
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        tuple.setField(0, new IntField(count));
+        hasInsert = true;
+        return tuple;
     }
 
     @Override
     public OpIterator[] getChildren() {
-        // some code goes here
-        return null;
+        return new OpIterator[]{child};
     }
 
     @Override
     public void setChildren(OpIterator[] children) {
-        // some code goes here
+        child = children[0];
     }
 }

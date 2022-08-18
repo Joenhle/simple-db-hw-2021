@@ -53,6 +53,11 @@ public class Catalog {
      * @param pkeyField the name of the primary key field
      */
     public void addTable(DbFile file, String name, String pkeyField) {
+        try {
+            int tableId = getTableId(name);
+            tableInfoMap.remove(tableId);
+        } catch (NoSuchElementException ignored) {
+        }
         tableInfoMap.put(file.getId(), new TableInfo(name, file, pkeyField));
     }
 

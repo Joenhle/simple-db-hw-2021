@@ -6,7 +6,7 @@ import java.io.IOException;
 import java.io.RandomAccessFile;
 
 public class FileUtil {
-    public static byte[] getContent(File file, int offset, int len) throws IOException {
+    public static byte[] readContent(File file, int offset, int len) throws IOException {
         byte[] buffer = new byte[len];
         long fileSize = file.length();
         if (fileSize > Integer.MAX_VALUE) {
@@ -21,4 +21,12 @@ public class FileUtil {
         fi.close();
         return buffer;
     }
+
+    public static void writeContent(File file, int offset, byte[] content) throws IOException {
+        RandomAccessFile fi = new RandomAccessFile(file, "rw");
+        fi.seek(offset);
+        fi.write(content);
+        fi.close();
+    }
+
 }

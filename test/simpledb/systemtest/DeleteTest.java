@@ -21,8 +21,7 @@ public class DeleteTest extends FilterBase {
     List<List<Integer>> expectedTuples = null;
 
     @Override
-    protected int applyPredicate(HeapFile table, TransactionId tid, Predicate predicate)
-            throws DbException, TransactionAbortedException {
+    protected int applyPredicate(HeapFile table, TransactionId tid, Predicate predicate) throws DbException, TransactionAbortedException {
         SeqScan ss = new SeqScan(tid, table.getId(), "");
         Filter filter = new Filter(predicate, ss);
         Delete deleteOperator = new Delete(tid, filter);

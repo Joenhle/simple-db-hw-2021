@@ -13,8 +13,7 @@ import java.util.*;
 public class Filter extends Operator {
 
     private Predicate predicate;
-    private OpIterator iter;
-    private OpIterator[] children;
+    private OpIterator child;
     private static final long serialVersionUID = 1L;
 
     /**
@@ -28,13 +27,7 @@ public class Filter extends Operator {
      */
     public Filter(Predicate p, OpIterator child) {
         predicate = p;
-        iter = child;
-        // 每个Operator子类的子iterator都在初始化时open，对象本身的open和close直接通过父类调用，且private iter也能保证安全
-        try {
-            iter.open();
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+        this.child = child;
     }
 
     public Predicate getPredicate() {
@@ -42,11 +35,21 @@ public class Filter extends Operator {
     }
 
     public TupleDesc getTupleDesc() {
-        return iter.getTupleDesc();
+        return child.getTupleDesc();
+    }
+
+    public void close() {
+        child.close();
+        super.close();
+    }
+
+    public void open() throws DbException, TransactionAbortedException {
+        child.open();
+        super.open();
     }
 
     public void rewind() throws DbException, TransactionAbortedException {
-        iter.rewind();
+        child.rewind();
     }
 
     /**
@@ -59,8 +62,8 @@ public class Filter extends Operator {
      * @see Predicate#filter
      */
     protected Tuple fetchNext() throws NoSuchElementException, TransactionAbortedException, DbException {
-        while (iter.hasNext()) {
-            Tuple next = iter.next();
+        while (child.hasNext()) {
+            Tuple next = child.next();
             if (predicate.filter(next)) {
                 return next;
             }
@@ -70,12 +73,14 @@ public class Filter extends Operator {
 
     @Override
     public OpIterator[] getChildren() {
-        return children;
+        return new OpIterator[]{child};
     }
 
     @Override
     public void setChildren(OpIterator[] children) {
-        this.children = children;
+        if (child != children[0]) {
+            child = children[0];
+        }
     }
 
 }

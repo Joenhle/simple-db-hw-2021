@@ -17,11 +17,10 @@ import java.util.NoSuchElementException;
 public class Aggregate extends Operator {
 
     private static final long serialVersionUID = 1L;
-    private OpIterator[] children;
+    private OpIterator child;
     private int afield;
     private int gfield;
     private Aggregator.Op aop;
-
     private OpIterator iter;
 
     /**
@@ -77,7 +76,7 @@ public class Aggregate extends Operator {
      */
     public String groupFieldName() {
         if (gfield != -1) {
-            return children[0].getTupleDesc().getFieldName(gfield);
+            return child.getTupleDesc().getFieldName(gfield);
         }
         return null;
     }
@@ -94,7 +93,7 @@ public class Aggregate extends Operator {
      * tuples
      */
     public String aggregateFieldName() {
-        return children[0].getTupleDesc().getFieldName(afield);
+        return child.getTupleDesc().getFieldName(afield);
     }
 
     /**
@@ -117,7 +116,12 @@ public class Aggregate extends Operator {
      * aggregate. Should return null if there are no more tuples.
      */
     protected Tuple fetchNext() throws TransactionAbortedException, DbException {
-        return iter.next();
+        try {
+            Tuple next = iter.next();
+            return next;
+        } catch (NoSuchElementException e) {
+            return null;
+        }
     }
 
     public void rewind() throws DbException, TransactionAbortedException {
@@ -142,12 +146,12 @@ public class Aggregate extends Operator {
 
     @Override
     public OpIterator[] getChildren() {
-        return children;
+        return new OpIterator[]{child};
     }
 
     @Override
     public void setChildren(OpIterator[] children) {
-        this.children = children;
+        child = children[0];
     }
 
 }

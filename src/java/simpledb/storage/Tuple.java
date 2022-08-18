@@ -102,6 +102,14 @@ public class Tuple implements Serializable {
         return fields.get(i);
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this.getClass() != o.getClass()) {
+            return false;
+        }
+        return tupleDesc.equals(((Tuple) o).tupleDesc) && recordId.equals(((Tuple) o).recordId) && fields.equals(((Tuple) o).fields);
+    }
+
     /**
      * Returns the contents of this Tuple as a string. Note that to pass the
      * system tests, the format needs to be as follows:
