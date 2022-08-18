@@ -3,15 +3,14 @@ package simpledb.storage;
 import simpledb.common.Database;
 import simpledb.common.Permissions;
 import simpledb.common.DbException;
+import simpledb.storage.evict.Cache;
+import simpledb.storage.evict.LRUCache;
 import simpledb.transaction.TransactionAbortedException;
 import simpledb.transaction.TransactionId;
 
 import java.io.*;
 
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -26,86 +25,8 @@ import java.util.concurrent.ConcurrentHashMap;
  * @Threadsafe, all fields are final
  */
 public class BufferPool {
-    class LRUCache {
-        class Node {
-            private PageId key;
-            private Page page;
-            private Node pre;
-            private Node next;
 
-            public Node(PageId key, Page page, Node pre, Node next) {
-                this.key = key;
-                this.page = page;
-                this.pre = pre;
-                this.next = next;
-            }
-        }
-        private ConcurrentHashMap<PageId, Node> hashMap;
-        private int capacity;
-        private Node head, tail;
-        public LRUCache(int capacity) {
-            this.capacity = capacity;
-            hashMap = new ConcurrentHashMap<>();
-        }
-        private void addLast(PageId pageId, Page page) {
-            Node node = new Node(pageId, page, tail, null);
-            if (tail != null) {
-                tail.next = node;
-            }
-            if (head == null) {
-                head = node;
-            }
-            tail = node;
-            hashMap.put(pageId, node);
-        }
-
-        private boolean full() {
-            return hashMap.size() == capacity;
-        }
-        public void remove(PageId pageId) {
-            Node node = hashMap.get(pageId);
-            if (tail == node) {
-                tail = node.pre;
-            }
-            if (head == node) {
-                head = node.next;
-            }
-            if (node.pre != null) {
-                node.pre.next= node.next;
-            }
-            if (node.next != null) {
-                node.next.pre = node.pre;
-            }
-            hashMap.remove(pageId);
-        }
-        public void put(PageId pageId, Page page) {
-            try {
-                if (hashMap.containsKey(pageId)) {
-                    evictPage(pageId);
-                }
-                if (full()) {
-                    evictPage(head.key);
-                }
-                addLast(pageId, page);
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-        }
-        public Page get(PageId pageId) {
-            if (hashMap.containsKey(pageId)) {
-                Node node = hashMap.get(pageId);
-                remove(pageId);
-                addLast(pageId, node.page);
-                return node.page;
-            }
-            return null;
-        }
-
-        public boolean containsKey(PageId pageId) {
-            return hashMap.containsKey(pageId);
-        }
-    }
-    private LRUCache pageCache;
+    private Cache pageCache;
 
     /** Bytes per page, including header. */
     private static final int DEFAULT_PAGE_SIZE = 4096;
@@ -258,8 +179,9 @@ public class BufferPool {
      *     break simpledb if running in NO STEAL mode.
      */
     public synchronized void flushAllPages() throws IOException {
-        for (PageId pageId : pageCache.hashMap.keySet()) {
-            flushPage(pageId);
+        Iterator<PageId> iter = pageCache.KeyIterator();
+        while (iter.hasNext()) {
+            flushPage(iter.next());
         }
     }
 
@@ -297,7 +219,7 @@ public class BufferPool {
         // not necessary for lab1|lab2
     }
 
-    private synchronized void evictPage(PageId pageId) throws IOException {
+    public synchronized void evictPage(PageId pageId) throws IOException {
         flushPage(pageId);
         discardPage(pageId);
     }
