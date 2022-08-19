@@ -27,7 +27,7 @@ public class JoinTest extends SimpleDbTestBase {
   OpIterator gtJoin;
 
   /**
-   * Initialize each unit test
+   * Initialize each unit scantest
    */
   @Before public void createTupleLists() {
     this.scan1 = TestUtil.createTupleList(width1,
@@ -61,7 +61,7 @@ public class JoinTest extends SimpleDbTestBase {
   }
 
   /**
-   * Unit test for Join.getTupleDesc()
+   * Unit scantest for Join.getTupleDesc()
    */
   @Test public void getTupleDesc() {
     JoinPredicate pred = new JoinPredicate(0, Predicate.Op.EQUALS, 0);
@@ -72,7 +72,7 @@ public class JoinTest extends SimpleDbTestBase {
   }
 
   /**
-   * Unit test for Join.rewind()
+   * Unit scantest for Join.rewind()
    */
   @Test public void rewind() throws Exception {
     JoinPredicate pred = new JoinPredicate(0, Predicate.Op.EQUALS, 0);
@@ -91,7 +91,7 @@ public class JoinTest extends SimpleDbTestBase {
   }
 
   /**
-   * Unit test for Join.getNext() using a &gt; predicate
+   * Unit scantest for Join.getNext() using a &gt; predicate
    */
   @Test public void gtJoin() throws Exception {
     JoinPredicate pred = new JoinPredicate(0, Predicate.Op.GREATER_THAN, 0);
@@ -102,7 +102,7 @@ public class JoinTest extends SimpleDbTestBase {
   }
 
   /**
-   * Unit test for Join.getNext() using an = predicate
+   * Unit scantest for Join.getNext() using an = predicate
    */
   @Test public void eqJoin() throws Exception {
     JoinPredicate pred = new JoinPredicate(0, Predicate.Op.EQUALS, 0);

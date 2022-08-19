@@ -35,7 +35,7 @@ public class BTreeDeadlockTest extends SimpleDbTestBase {
 	private int count2;
 
 	/**
-	 * Set up initial resources for each unit test.
+	 * Set up initial resources for each unit scantest.
 	 */
 	@Before public void setUp() throws Exception {
 		// create a packed B+ tree with no empty slots
@@ -95,9 +95,9 @@ public class BTreeDeadlockTest extends SimpleDbTestBase {
 	}
 
 	/**
-	 * Not-so-unit test to construct a deadlock situation.
+	 * Not-so-unit scantest to construct a deadlock situation.
 	 * 
-	 * This test causes two different transactions to update two (probably) different leaf nodes
+	 * This scantest causes two different transactions to update two (probably) different leaf nodes
 	 * Each transaction can happily insert tuples until the page fills up, but then 
 	 * it needs to obtain a write lock on the root node in order to split the page. This will cause
 	 * a deadlock situation.

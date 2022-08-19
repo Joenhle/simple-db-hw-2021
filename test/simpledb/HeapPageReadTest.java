@@ -68,7 +68,7 @@ public class HeapPageReadTest extends SimpleDbTestBase {
     }
 
     /**
-     * Set up initial resources for each unit test.
+     * Set up initial resources for each unit scantest.
      */
     @Before public void addTable() {
         this.pid = new HeapPageId(-1, -1);
@@ -76,7 +76,7 @@ public class HeapPageReadTest extends SimpleDbTestBase {
     }
 
     /**
-     * Unit test for HeapPage.getId()
+     * Unit scantest for HeapPage.getId()
      */
     @Test public void getId() throws Exception {
         HeapPage page = new HeapPage(pid, EXAMPLE_DATA);
@@ -84,7 +84,7 @@ public class HeapPageReadTest extends SimpleDbTestBase {
     }
 
     /**
-     * Unit test for HeapPage.iterator()
+     * Unit scantest for HeapPage.iterator()
      */
     @Test public void testIterator() throws Exception {
         HeapPage page = new HeapPage(pid, EXAMPLE_DATA);
@@ -103,7 +103,7 @@ public class HeapPageReadTest extends SimpleDbTestBase {
     }
 
     /**
-     * Unit test for HeapPage.getNumEmptySlots()
+     * Unit scantest for HeapPage.getNumEmptySlots()
      */
     @Test public void getNumEmptySlots() throws Exception {
         HeapPage page = new HeapPage(pid, EXAMPLE_DATA);
@@ -111,7 +111,7 @@ public class HeapPageReadTest extends SimpleDbTestBase {
     }
 
     /**
-     * Unit test for HeapPage.isSlotUsed()
+     * Unit scantest for HeapPage.isSlotUsed()
      */
     @Test public void getSlot() throws Exception {
         HeapPage page = new HeapPage(pid, EXAMPLE_DATA);

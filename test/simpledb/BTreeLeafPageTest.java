@@ -76,7 +76,7 @@ public class BTreeLeafPageTest extends SimpleDbTestBase {
 	}
 
 	/**
-	 * Set up initial resources for each unit test.
+	 * Set up initial resources for each unit scantest.
 	 */
 	@Before public void addTable() {
 		this.pid = new BTreePageId(-1, -1, BTreePageId.LEAF);
@@ -84,7 +84,7 @@ public class BTreeLeafPageTest extends SimpleDbTestBase {
 	}
 
 	/**
-	 * Unit test for BTreeLeafPage.getId()
+	 * Unit scantest for BTreeLeafPage.getId()
 	 */
 	@Test public void getId() throws Exception {
 		BTreeLeafPage page = new BTreeLeafPage(pid, EXAMPLE_DATA, 0);
@@ -92,7 +92,7 @@ public class BTreeLeafPageTest extends SimpleDbTestBase {
 	}
 
 	/**
-	 * Unit test for BTreeLeafPage.getParentId()
+	 * Unit scantest for BTreeLeafPage.getParentId()
 	 */
 	@Test public void getParentId() throws Exception {
 		BTreeLeafPage page = new BTreeLeafPage(pid, EXAMPLE_DATA, 0);
@@ -100,7 +100,7 @@ public class BTreeLeafPageTest extends SimpleDbTestBase {
 	}
 
 	/**
-	 * Unit test for BTreeLeafPage.getLeftSiblingId()
+	 * Unit scantest for BTreeLeafPage.getLeftSiblingId()
 	 */
 	@Test public void getLeftSiblingId() throws Exception {
 		BTreeLeafPage page = new BTreeLeafPage(pid, EXAMPLE_DATA, 0);
@@ -108,7 +108,7 @@ public class BTreeLeafPageTest extends SimpleDbTestBase {
 	}
 
 	/**
-	 * Unit test for BTreeLeafPage.getRightSiblingId()
+	 * Unit scantest for BTreeLeafPage.getRightSiblingId()
 	 */
 	@Test public void getRightSiblingId() throws Exception {
 		BTreeLeafPage page = new BTreeLeafPage(pid, EXAMPLE_DATA, 0);
@@ -116,7 +116,7 @@ public class BTreeLeafPageTest extends SimpleDbTestBase {
 	}
 
 	/**
-	 * Unit test for BTreeLeafPage.setParentId()
+	 * Unit scantest for BTreeLeafPage.setParentId()
 	 */
 	@Test public void setParentId() throws Exception {
 		BTreeLeafPage page = new BTreeLeafPage(pid, EXAMPLE_DATA, 0);
@@ -134,7 +134,7 @@ public class BTreeLeafPageTest extends SimpleDbTestBase {
 	}
 
 	/**
-	 * Unit test for BTreeLeafPage.setLeftSiblingId()
+	 * Unit scantest for BTreeLeafPage.setLeftSiblingId()
 	 */
 	@Test public void setLeftSiblingId() throws Exception {
 		BTreeLeafPage page = new BTreeLeafPage(pid, EXAMPLE_DATA, 0);
@@ -152,7 +152,7 @@ public class BTreeLeafPageTest extends SimpleDbTestBase {
 	}
 
 	/**
-	 * Unit test for BTreeLeafPage.setRightSiblingId()
+	 * Unit scantest for BTreeLeafPage.setRightSiblingId()
 	 */
 	@Test public void setRightSiblingId() throws Exception {
 		BTreeLeafPage page = new BTreeLeafPage(pid, EXAMPLE_DATA, 0);
@@ -170,7 +170,7 @@ public class BTreeLeafPageTest extends SimpleDbTestBase {
 	}
 
 	/**
-	 * Unit test for BTreeLeafPage.iterator()
+	 * Unit scantest for BTreeLeafPage.iterator()
 	 */
 	@Test public void testIterator() throws Exception {
 		BTreeLeafPage page = new BTreeLeafPage(pid, EXAMPLE_DATA, 0);
@@ -197,7 +197,7 @@ public class BTreeLeafPageTest extends SimpleDbTestBase {
 	}
 
 	/**
-	 * Unit test for BTreeLeafPage.getNumEmptySlots()
+	 * Unit scantest for BTreeLeafPage.getNumEmptySlots()
 	 */
 	@Test public void getNumEmptySlots() throws Exception {
 		BTreeLeafPage page = new BTreeLeafPage(pid, EXAMPLE_DATA, 0);
@@ -205,7 +205,7 @@ public class BTreeLeafPageTest extends SimpleDbTestBase {
 	}
 
 	/**
-	 * Unit test for BTreeLeafPage.isSlotUsed()
+	 * Unit scantest for BTreeLeafPage.isSlotUsed()
 	 */
 	@Test public void getSlot() throws Exception {
 		BTreeLeafPage page = new BTreeLeafPage(pid, EXAMPLE_DATA, 0);
@@ -218,7 +218,7 @@ public class BTreeLeafPageTest extends SimpleDbTestBase {
 	}
 
 	/**
-	 * Unit test for BTreeLeafPage.isDirty()
+	 * Unit scantest for BTreeLeafPage.isDirty()
 	 */
 	@Test public void testDirty() throws Exception {
 		TransactionId tid = new TransactionId();
@@ -234,7 +234,7 @@ public class BTreeLeafPageTest extends SimpleDbTestBase {
 	}
 
 	/**
-	 * Unit test for BTreeLeafPage.addTuple()
+	 * Unit scantest for BTreeLeafPage.addTuple()
 	 */
 	@Test public void addTuple() throws Exception {
 		// create two blank pages -- one keyed on the first field, 
@@ -307,7 +307,7 @@ public class BTreeLeafPageTest extends SimpleDbTestBase {
 	}
 
 	/**
-	 * Unit test for BTreeLeafPage.deleteTuple() with false tuples
+	 * Unit scantest for BTreeLeafPage.deleteTuple() with false tuples
 	 */
 	@Test(expected=DbException.class)
 	public void deleteNonexistentTuple() throws Exception {
@@ -316,7 +316,7 @@ public class BTreeLeafPageTest extends SimpleDbTestBase {
 	}
 
 	/**
-	 * Unit test for BTreeLeafPage.deleteTuple()
+	 * Unit scantest for BTreeLeafPage.deleteTuple()
 	 */
 	@Test public void deleteTuple() throws Exception {
 		BTreeLeafPage page = new BTreeLeafPage(pid, EXAMPLE_DATA, 0);

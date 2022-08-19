@@ -14,7 +14,7 @@ public class IntHistogramTest {
 	 * your constants are good).
 	 */
 	@Test public void orderOfGrowthTest() {
-		// Don't bother with a timeout on this test.
+		// Don't bother with a timeout on this scantest.
 		// Printing debugging statements takes >> time than some inefficient algorithms.
 		IntHistogram h = new IntHistogram(10000, 0, 100);
 		

@@ -30,7 +30,7 @@ public class RecordIdTest extends SimpleDbTestBase {
     }
 
     /**
-     * Unit test for RecordId.getPageId()
+     * Unit scantest for RecordId.getPageId()
      */
     @Test public void getPageId() {
         HeapPageId hpid = new HeapPageId(-1, 2);
@@ -39,14 +39,14 @@ public class RecordIdTest extends SimpleDbTestBase {
     }
 
     /**
-     * Unit test for RecordId.getTupleNumber()
+     * Unit scantest for RecordId.getTupleNumber()
      */
     @Test public void tupleno() {
         assertEquals(3, hrid.getTupleNumber());
     }
     
     /**
-     * Unit test for RecordId.equals()
+     * Unit scantest for RecordId.equals()
      */
     @Test public void equals() {
     	assertEquals(hrid, hrid2);
@@ -58,7 +58,7 @@ public class RecordIdTest extends SimpleDbTestBase {
     }
     
     /**
-     * Unit test for RecordId.hashCode()
+     * Unit scantest for RecordId.hashCode()
      */
     @Test public void hCode() {
     	assertEquals(hrid.hashCode(), hrid2.hashCode());

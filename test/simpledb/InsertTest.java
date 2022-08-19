@@ -22,7 +22,7 @@ public class InsertTest extends TestUtil.CreateHeapFile {
   private TransactionId tid;
 
   /**
-   * Initialize each unit test
+   * Initialize each unit scantest
    */
   @Before public void setUp() throws Exception {
     super.setUp();
@@ -38,7 +38,7 @@ public class InsertTest extends TestUtil.CreateHeapFile {
   }
 
   /**
-   * Unit test for Insert.getTupleDesc()
+   * Unit scantest for Insert.getTupleDesc()
    */
   @Test public void getTupleDesc() throws Exception {
     Insert op = new Insert(tid,scan1, empty.getId());
@@ -48,7 +48,7 @@ public class InsertTest extends TestUtil.CreateHeapFile {
   }
 
   /**
-   * Unit test for Insert.getNext(), inserting elements into an empty file
+   * Unit scantest for Insert.getNext(), inserting elements into an empty file
    */
   @Test public void getNext() throws Exception {
     Insert op = new Insert(tid,scan1, empty.getId());

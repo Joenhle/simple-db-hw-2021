@@ -33,7 +33,7 @@ public class AggregateTest extends SimpleDbTestBase {
     OpIterator count;
 
     /**
-     * Initialize each unit test
+     * Initialize each unit scantest
      */
     @Before
     public void createTupleLists() {
@@ -91,7 +91,7 @@ public class AggregateTest extends SimpleDbTestBase {
     }
 
     /**
-     * Unit test for Aggregate.getTupleDesc()
+     * Unit scantest for Aggregate.getTupleDesc()
      */
     @Test
     public void getTupleDesc() {
@@ -112,7 +112,7 @@ public class AggregateTest extends SimpleDbTestBase {
     }
 
     /**
-     * Unit test for Aggregate.rewind()
+     * Unit scantest for Aggregate.rewind()
      */
     @Test
     public void rewind() throws Exception {
@@ -130,7 +130,7 @@ public class AggregateTest extends SimpleDbTestBase {
     }
 
     /**
-     * Unit test for Aggregate.getNext() using a count aggregate with string types
+     * Unit scantest for Aggregate.getNext() using a count aggregate with string types
      */
     @Test
     public void countStringAggregate() throws Exception {
@@ -142,7 +142,7 @@ public class AggregateTest extends SimpleDbTestBase {
     }
 
     /**
-     * Unit test for Aggregate.getNext() using a count aggregate with string types
+     * Unit scantest for Aggregate.getNext() using a count aggregate with string types
      */
     @Test
     public void sumStringGroupBy() throws Exception {
@@ -154,7 +154,7 @@ public class AggregateTest extends SimpleDbTestBase {
     }
 
     /**
-     * Unit test for Aggregate.getNext() using a sum aggregate
+     * Unit scantest for Aggregate.getNext() using a sum aggregate
      */
     @Test
     public void sumAggregate() throws Exception {
@@ -166,7 +166,7 @@ public class AggregateTest extends SimpleDbTestBase {
     }
 
     /**
-     * Unit test for Aggregate.getNext() using an avg aggregate
+     * Unit scantest for Aggregate.getNext() using an avg aggregate
      */
     @Test
     public void avgAggregate() throws Exception {
@@ -178,7 +178,7 @@ public class AggregateTest extends SimpleDbTestBase {
     }
 
     /**
-     * Unit test for Aggregate.getNext() using a max aggregate
+     * Unit scantest for Aggregate.getNext() using a max aggregate
      */
     @Test
     public void maxAggregate() throws Exception {
@@ -190,7 +190,7 @@ public class AggregateTest extends SimpleDbTestBase {
     }
 
     /**
-     * Unit test for Aggregate.getNext() using a min aggregate
+     * Unit scantest for Aggregate.getNext() using a min aggregate
      */
     @Test
     public void minAggregate() throws Exception {

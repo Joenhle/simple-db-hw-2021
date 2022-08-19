@@ -25,7 +25,7 @@ public class LockingTest extends TestUtil.CreateHeapFile {
   private BufferPool bp;
 
   /**
-   * Set up initial resources for each unit test.
+   * Set up initial resources for each unit scantest.
    */
   @Before public void setUp() throws Exception {
     super.setUp();
@@ -50,7 +50,7 @@ public class LockingTest extends TestUtil.CreateHeapFile {
     this.tid2 = new TransactionId();
 
     // forget about locks associated to tid, so they don't conflict with
-    // test cases
+    // scantest cases
     bp.getPage(tid, p0, Permissions.READ_WRITE).markDirty(true, tid);
     bp.getPage(tid, p1, Permissions.READ_WRITE).markDirty(true, tid);
     bp.getPage(tid, p2, Permissions.READ_WRITE).markDirty(true, tid);
@@ -59,7 +59,7 @@ public class LockingTest extends TestUtil.CreateHeapFile {
   }
 
   /**
-   * Generic unit test structure for BufferPool.getPage() assuming locking.
+   * Generic unit scantest structure for BufferPool.getPage() assuming locking.
    *
    * @param tid1 the first transaction Id
    * @param pid1 the first page to lock over
@@ -80,7 +80,7 @@ public class LockingTest extends TestUtil.CreateHeapFile {
   }
 
   /**
-   * Generic unit test structure to grab an additional lock in a new
+   * Generic unit scantest structure to grab an additional lock in a new
    * thread.
    *
    * @param tid the transaction Id
@@ -99,12 +99,12 @@ public class LockingTest extends TestUtil.CreateHeapFile {
     Thread.sleep(TIMEOUT);
     assertEquals(expected, t.acquired());
 
-    // TODO(ghuo): yes, stop() is evil, but this is unit test cleanup
+    // TODO(ghuo): yes, stop() is evil, but this is unit scantest cleanup
     t.stop();
   }
 
   /**
-   * Unit test for BufferPool.getPage() assuming locking.
+   * Unit scantest for BufferPool.getPage() assuming locking.
    * Acquires two read locks on the same page.
    */
   @Test public void acquireReadLocksOnSamePage() throws Exception {
@@ -113,7 +113,7 @@ public class LockingTest extends TestUtil.CreateHeapFile {
   }
 
   /**
-   * Unit test for BufferPool.getPage() assuming locking.
+   * Unit scantest for BufferPool.getPage() assuming locking.
    * Acquires a read lock and a write lock on the same page, in that order.
    */
   @Test public void acquireReadWriteLocksOnSamePage() throws Exception {
@@ -122,7 +122,7 @@ public class LockingTest extends TestUtil.CreateHeapFile {
   }
 
   /**
-   * Unit test for BufferPool.getPage() assuming locking.
+   * Unit scantest for BufferPool.getPage() assuming locking.
    * Acquires a write lock and a read lock on the same page, in that order.
    */
   @Test public void acquireWriteReadLocksOnSamePage() throws Exception {
@@ -131,7 +131,7 @@ public class LockingTest extends TestUtil.CreateHeapFile {
   }
 
   /**
-   * Unit test for BufferPool.getPage() assuming locking.
+   * Unit scantest for BufferPool.getPage() assuming locking.
    * Acquires a read lock and a write lock on different pages.
    */
   @Test public void acquireReadWriteLocksOnTwoPages() throws Exception {
@@ -140,7 +140,7 @@ public class LockingTest extends TestUtil.CreateHeapFile {
   }
 
   /**
-   * Unit test for BufferPool.getPage() assuming locking.
+   * Unit scantest for BufferPool.getPage() assuming locking.
    * Acquires write locks on different pages.
    */
   @Test public void acquireWriteLocksOnTwoPages() throws Exception {
@@ -149,7 +149,7 @@ public class LockingTest extends TestUtil.CreateHeapFile {
   }
 
   /**
-   * Unit test for BufferPool.getPage() assuming locking.
+   * Unit scantest for BufferPool.getPage() assuming locking.
    * Acquires read locks on different pages.
    */
   @Test public void acquireReadLocksOnTwoPages() throws Exception {
@@ -158,7 +158,7 @@ public class LockingTest extends TestUtil.CreateHeapFile {
   }
 
   /**
-   * Unit test for BufferPool.getPage() assuming locking.
+   * Unit scantest for BufferPool.getPage() assuming locking.
    * Attempt lock upgrade.
    */
   @Test public void lockUpgrade() throws Exception {
@@ -169,7 +169,7 @@ public class LockingTest extends TestUtil.CreateHeapFile {
   }
 
   /**
-   * Unit test for BufferPool.getPage() assuming locking.
+   * Unit scantest for BufferPool.getPage() assuming locking.
    * A single transaction should be able to acquire a read lock after it
    * already has a write lock.
    */
@@ -179,7 +179,7 @@ public class LockingTest extends TestUtil.CreateHeapFile {
   }
 
   /**
-   * Unit test for BufferPool.getPage() and BufferPool.releasePage()
+   * Unit scantest for BufferPool.getPage() and BufferPool.releasePage()
    * assuming locking.
    * Acquires read locks on different pages.
    */

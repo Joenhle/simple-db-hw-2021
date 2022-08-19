@@ -12,7 +12,7 @@ import simpledb.systemtest.SimpleDbTestBase;
 public class TupleTest extends SimpleDbTestBase {
 
     /**
-     * Unit test for Tuple.getField() and Tuple.setField()
+     * Unit scantest for Tuple.getField() and Tuple.setField()
      */
     @Test public void modifyFields() {
         TupleDesc td = Utility.getTupleDesc(2);
@@ -32,7 +32,7 @@ public class TupleTest extends SimpleDbTestBase {
     }
 
     /**
-     * Unit test for Tuple.getTupleDesc()
+     * Unit scantest for Tuple.getTupleDesc()
      */
     @Test public void getTupleDesc() {
         TupleDesc td = Utility.getTupleDesc(5);
@@ -41,7 +41,7 @@ public class TupleTest extends SimpleDbTestBase {
     }
 
     /**
-     * Unit test for Tuple.getRecordId() and Tuple.setRecordId()
+     * Unit scantest for Tuple.getRecordId() and Tuple.setRecordId()
      */
     @Test public void modifyRecordId() {
         Tuple tup1 = new Tuple(Utility.getTupleDesc(1));
@@ -53,7 +53,7 @@ public class TupleTest extends SimpleDbTestBase {
 	    assertEquals(rid1, tup1.getRecordId());
 	} catch (java.lang.UnsupportedOperationException e) {
 		//rethrow the exception with an explanation
-    	throw new UnsupportedOperationException("modifyRecordId() test failed due to " +
+    	throw new UnsupportedOperationException("modifyRecordId() scantest failed due to " +
     			"RecordId.equals() not being implemented.  This is not required for Lab 1, " +
     			"but should pass when you do implement the RecordId class.");
 	}

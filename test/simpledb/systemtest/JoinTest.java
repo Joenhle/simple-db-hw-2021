@@ -55,7 +55,7 @@ public class JoinTest extends SimpleDbTestBase {
         JoinPredicate p = new JoinPredicate(0, Predicate.Op.EQUALS, 0);
         Join joinOp = new Join(p, ss1, ss2);
 
-        // test the join results
+        // scantest the join results
         SystemTestUtil.matchTuples(joinOp, expectedResults);
 
         joinOp.close();
@@ -77,7 +77,7 @@ public class JoinTest extends SimpleDbTestBase {
         validateJoin(1, 3, 1, 3);
     }
 
-    /** Make test compatible with older version of ant. */
+    /** Make scantest compatible with older version of ant. */
     public static junit.framework.Test suite() {
         return new junit.framework.JUnit4TestAdapter(JoinTest.class);
     }

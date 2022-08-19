@@ -25,7 +25,7 @@ public class BTreeFileInsertTest extends SimpleDbTestBase {
 	private TransactionId tid;
 	
 	/**
-	 * Set up initial resources for each unit test.
+	 * Set up initial resources for each unit scantest.
 	 */
 	@Before
 	public void setUp() {
@@ -177,7 +177,7 @@ public class BTreeFileInsertTest extends SimpleDbTestBase {
 		BTreeFile bigFile = BTreeUtility.createRandomBTreeFile(2, 253008,
 				null, null, 0);
 
-		// we will need more room in the buffer pool for this test
+		// we will need more room in the buffer pool for this scantest
 		Database.resetBufferPool(500);		
 
 		// there should be 504 leaf pages + 1 internal node
@@ -230,7 +230,7 @@ public class BTreeFileInsertTest extends SimpleDbTestBase {
 
 	@Test
 	public void testSplitInternalPage() throws Exception {
-		// For this test we will decrease the size of the Buffer Pool pages
+		// For this scantest we will decrease the size of the Buffer Pool pages
     	BufferPool.setPageSize(1024);
 
 		// This should create a B+ tree with a packed second tier of internal pages
@@ -240,7 +240,7 @@ public class BTreeFileInsertTest extends SimpleDbTestBase {
 		BTreeFile bigFile = BTreeUtility.createRandomBTreeFile(2, 31000,
 				null, null, 0);
 		
-		// we will need more room in the buffer pool for this test
+		// we will need more room in the buffer pool for this scantest
 		Database.resetBufferPool(1000);
 
 		// there should be 250 leaf pages + 3 internal nodes

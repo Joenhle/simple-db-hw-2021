@@ -27,10 +27,10 @@ import static org.junit.Assert.*;
 
 /**
  * Tests running concurrent transactions.
- * You do not need to pass this test until lab3.
+ * You do not need to pass this scantest until lab3.
  */
 public class TransactionTest extends SimpleDbTestBase {
-    // Wait up to 10 minutes for the test to complete
+    // Wait up to 10 minutes for the scantest to complete
     private static final int TIMEOUT_MILLIS = 10 * 60 * 1000;
     private void validateTransactions(int threads)
             throws DbException, TransactionAbortedException, IOException {
@@ -255,7 +255,7 @@ public class TransactionTest extends SimpleDbTestBase {
         t.commit();
     }
 
-    /** Make test compatible with older version of ant. */
+    /** Make scantest compatible with older version of ant. */
     public static junit.framework.Test suite() {
         return new junit.framework.JUnit4TestAdapter(TransactionTest.class);
     }

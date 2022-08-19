@@ -21,7 +21,7 @@ import simpledb.transaction.TransactionId;
 /**
  * Creates a heap file with 1024*500 tuples with two integer fields each.  Clears the buffer pool,
  * and performs a sequential scan through all of the pages.  If the growth in JVM usage
- * is greater than 2 MB due to the scan, the test fails.  Otherwise, the page eviction policy seems
+ * is greater than 2 MB due to the scan, the scantest fails.  Otherwise, the page eviction policy seems
  * to have worked.
  */
 public class EvictionTest extends SimpleDbTestBase {
@@ -85,7 +85,7 @@ public class EvictionTest extends SimpleDbTestBase {
         return found;
     }
 
-    /** Make test compatible with older version of ant. */
+    /** Make scantest compatible with older version of ant. */
     public static junit.framework.Test suite() {
         return new junit.framework.JUnit4TestAdapter(EvictionTest.class);
     }

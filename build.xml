@@ -54,7 +54,7 @@
         </sequential>
     </macrodef>
 
-    <!-- Common macro for running junit tests in both the test and runtest targets -->
+    <!-- Common macro for running junit tests in both the scantest and runtest targets -->
     <macrodef name="RunJunit">
         <attribute name="haltonfailure" default="yes" />
         <element name="testspecification" implicit="yes" />

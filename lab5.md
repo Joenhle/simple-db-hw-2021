@@ -269,10 +269,10 @@ take a few seconds to complete. These files will test that your code inserts
 tuples and splits pages correcty, and also handles duplicate tuples.
 
 <!-- After completing this exercise, you should be able to pass the unit tests
-in `BTreeDeadlockTest.java` and `BTreeInsertTest.java`. Some of the test cases
-may take a few seconds to complete. `BTreeDeadlockTest` will test that you have
+in `BTreeDeadlockTest.java` and `BTreeInsertTest.java`. Some of the scantest cases
+may take a few seconds to complete. `BTreeDeadlockTest` will scantest that you have
 implemented locking correctly and can handle deadlocks. `BTreeInsertTest` will
-test that your code inserts tuples and splits pages correcty, and also handles
+scantest that your code inserts tuples and splits pages correcty, and also handles
 duplicate tuples and next key locking. -->
 
 ***

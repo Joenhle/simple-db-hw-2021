@@ -36,10 +36,10 @@ public class QueryTest {
 	}
 	
 	@Test(timeout=20000) public void queryTest() throws IOException {
-		// This test is intended to approximate the join described in the
+		// This scantest is intended to approximate the join described in the
 		// "Query Planning" section of 2009 Quiz 1,
 		// though with some minor variation due to limitations in simpledb
-		// and to only test your integer-heuristic code rather than
+		// and to only scantest your integer-heuristic code rather than
 		// string-heuristic code.		
 		final int IO_COST = 101;
 

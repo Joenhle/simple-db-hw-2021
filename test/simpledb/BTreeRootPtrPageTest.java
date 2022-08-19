@@ -40,7 +40,7 @@ public class BTreeRootPtrPageTest extends SimpleDbTestBase {
 	}
 
 	/**
-	 * Set up initial resources for each unit test.
+	 * Set up initial resources for each unit scantest.
 	 */
 	@Before public void addTable() {
 		this.pid = new BTreePageId(-1, 0, BTreePageId.ROOT_PTR);
@@ -48,7 +48,7 @@ public class BTreeRootPtrPageTest extends SimpleDbTestBase {
 	}
 
 	/**
-	 * Unit test for BTreeRootPtrPage.getId()
+	 * Unit scantest for BTreeRootPtrPage.getId()
 	 */
 	@Test public void getId() throws Exception {
 		BTreeRootPtrPage page = new BTreeRootPtrPage(pid, EXAMPLE_DATA);
@@ -56,7 +56,7 @@ public class BTreeRootPtrPageTest extends SimpleDbTestBase {
 	}
 
 	/**
-	 * Unit test for BTreeRootPtrPage.getRootId()
+	 * Unit scantest for BTreeRootPtrPage.getRootId()
 	 */
 	@Test public void getRootId() throws Exception {
 		BTreeRootPtrPage page = new BTreeRootPtrPage(pid, EXAMPLE_DATA);
@@ -64,7 +64,7 @@ public class BTreeRootPtrPageTest extends SimpleDbTestBase {
 	}
 
 	/**
-	 * Unit test for BTreeRootPtrPage.setRootId()
+	 * Unit scantest for BTreeRootPtrPage.setRootId()
 	 */
 	@Test public void setRootId() throws Exception {
 		BTreeRootPtrPage page = new BTreeRootPtrPage(pid, EXAMPLE_DATA);
@@ -90,7 +90,7 @@ public class BTreeRootPtrPageTest extends SimpleDbTestBase {
 	}
 
 	/**
-	 * Unit test for BTreeRootPtrPage.getHeaderId()
+	 * Unit scantest for BTreeRootPtrPage.getHeaderId()
 	 */
 	@Test public void getHeaderId() throws Exception {
 		BTreeRootPtrPage page = new BTreeRootPtrPage(pid, EXAMPLE_DATA);
@@ -98,7 +98,7 @@ public class BTreeRootPtrPageTest extends SimpleDbTestBase {
 	}
 
 	/**
-	 * Unit test for BTreeRootPtrPage.setHeaderId()
+	 * Unit scantest for BTreeRootPtrPage.setHeaderId()
 	 */
 	@Test public void setHeaderId() throws Exception {
 		BTreeRootPtrPage page = new BTreeRootPtrPage(pid, EXAMPLE_DATA);
@@ -124,7 +124,7 @@ public class BTreeRootPtrPageTest extends SimpleDbTestBase {
 	}
 
 	/**
-	 * Unit test for BTreeRootPtrPage.isDirty()
+	 * Unit scantest for BTreeRootPtrPage.isDirty()
 	 */
 	@Test public void testDirty() throws Exception {
 		TransactionId tid = new TransactionId();

@@ -64,7 +64,7 @@ public class JoinOptimizerTest extends SimpleDbTestBase {
     TableStats stats2;
 
     /**
-     * Set up the test; create some initial tables to work with
+     * Set up the scantest; create some initial tables to work with
      */
     @Before
     public void setUp() throws Exception {
@@ -280,10 +280,10 @@ public class JoinOptimizerTest extends SimpleDbTestBase {
      */
     @Test
     public void orderJoinsTest() throws ParsingException, IOException {
-        // This test is intended to approximate the join described in the
+        // This scantest is intended to approximate the join described in the
         // "Query Planning" section of 2009 Quiz 1,
         // though with some minor variation due to limitations in simpledb
-        // and to only test your integer-heuristic code rather than
+        // and to only scantest your integer-heuristic code rather than
         // string-heuristic code.
 
         final int IO_COST = 101;

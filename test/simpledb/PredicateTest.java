@@ -12,7 +12,7 @@ import junit.framework.JUnit4TestAdapter;
 public class PredicateTest extends SimpleDbTestBase{
 
   /**
-   * Unit test for Predicate.filter()
+   * Unit scantest for Predicate.filter()
    */
   @Test public void filter() {
     int[] vals = new int[] { -1, 0, 1 };

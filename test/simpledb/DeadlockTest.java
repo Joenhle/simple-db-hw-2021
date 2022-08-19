@@ -29,7 +29,7 @@ public class DeadlockTest extends TestUtil.CreateHeapFile {
   private BufferPool bp;
 
   /**
-   * Set up initial resources for each unit test.
+   * Set up initial resources for each unit scantest.
    */
   @Before public void setUp() throws Exception {
     super.setUp();
@@ -55,7 +55,7 @@ public class DeadlockTest extends TestUtil.CreateHeapFile {
     this.rand = new Random();
 
     // forget about locks associated to tid, so they don't conflict with
-    // test cases
+    // scantest cases
     bp.getPage(tid, p0, Permissions.READ_WRITE).markDirty(true, tid);
     bp.getPage(tid, p1, Permissions.READ_WRITE).markDirty(true, tid);
     bp.getPage(tid, p2, Permissions.READ_WRITE).markDirty(true, tid);
@@ -76,7 +76,7 @@ public class DeadlockTest extends TestUtil.CreateHeapFile {
   }
 
   /**
-   * Not-so-unit test to construct a deadlock situation.
+   * Not-so-unit scantest to construct a deadlock situation.
    * t1 acquires p0.read; t2 acquires p1.read; t1 attempts p1.write; t2
    * attempts p0.write. Rinse and repeat.
    */
@@ -124,7 +124,7 @@ public class DeadlockTest extends TestUtil.CreateHeapFile {
   }
 
   /**
-   * Not-so-unit test to construct a deadlock situation.
+   * Not-so-unit scantest to construct a deadlock situation.
    * t1 acquires p0.write; t2 acquires p1.write; t1 attempts p1.write; t2
    * attempts p0.write.
    */
@@ -172,7 +172,7 @@ public class DeadlockTest extends TestUtil.CreateHeapFile {
   }
 
   /**
-   * Not-so-unit test to construct a deadlock situation.
+   * Not-so-unit scantest to construct a deadlock situation.
    * t1 acquires p0.read; t2 acquires p0.read; t1 attempts to upgrade to
    * p0.write; t2 attempts to upgrade to p0.write
    */

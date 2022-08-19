@@ -16,7 +16,7 @@ import junit.framework.JUnit4TestAdapter;
 public class TupleDescTest extends SimpleDbTestBase {
 
     /**
-     * Unit test for TupleDesc.combine()
+     * Unit scantest for TupleDesc.combine()
      */
     @Test public void combine() {
         TupleDesc td1, td2, td3;
@@ -24,7 +24,7 @@ public class TupleDescTest extends SimpleDbTestBase {
         td1 = Utility.getTupleDesc(1, "td1");
         td2 = Utility.getTupleDesc(2, "td2");
 
-        // test td1.combine(td2)
+        // scantest td1.combine(td2)
         td3 = TupleDesc.merge(td1, td2);
         assertEquals(3 , td3.numFields());
         assertEquals(3 * Type.INT_TYPE.getLen(), td3.getSize());
@@ -32,7 +32,7 @@ public class TupleDescTest extends SimpleDbTestBase {
             assertEquals(Type.INT_TYPE, td3.getFieldType(i));
         assertTrue(combinedStringArrays(td1, td2, td3));
 
-        // test td2.combine(td1)
+        // scantest td2.combine(td1)
         td3 = TupleDesc.merge(td2, td1);
         assertEquals(3 , td3.numFields());
         assertEquals(3 * Type.INT_TYPE.getLen(), td3.getSize());
@@ -40,7 +40,7 @@ public class TupleDescTest extends SimpleDbTestBase {
             assertEquals(Type.INT_TYPE, td3.getFieldType(i));
         assertTrue(combinedStringArrays(td2, td1, td3));
 
-        // test td2.combine(td2)
+        // scantest td2.combine(td2)
         td3 = TupleDesc.merge(td2, td2);
         assertEquals(4 , td3.numFields());
         assertEquals(4 * Type.INT_TYPE.getLen(), td3.getSize());
@@ -71,7 +71,7 @@ public class TupleDescTest extends SimpleDbTestBase {
     }
 
     /**
-     * Unit test for TupleDesc.getType()
+     * Unit scantest for TupleDesc.getType()
      */
     @Test public void getType() {
         int[] lengths = new int[] { 1, 2, 1000 };
@@ -84,11 +84,11 @@ public class TupleDescTest extends SimpleDbTestBase {
     }
     
     /**
-     * Unit test for TupleDesc.nameToId()
+     * Unit scantest for TupleDesc.nameToId()
      */
     @Test public void nameToId() {
         int[] lengths = new int[] { 1, 2, 1000 };
-        String prefix = "test";
+        String prefix = "scantest";
         
         for (int len: lengths) {
             // Make sure you retrieve well-named fields
@@ -125,7 +125,7 @@ public class TupleDescTest extends SimpleDbTestBase {
     }    
 
     /**
-     * Unit test for TupleDesc.getSize()
+     * Unit scantest for TupleDesc.getSize()
      */
     @Test public void getSize() {
         int[] lengths = new int[] { 1, 2, 1000 };
@@ -137,7 +137,7 @@ public class TupleDescTest extends SimpleDbTestBase {
     }
 
     /**
-     * Unit test for TupleDesc.numFields()
+     * Unit scantest for TupleDesc.numFields()
      */
     @Test public void numFields() {
         int[] lengths = new int[] { 1, 2, 1000 };

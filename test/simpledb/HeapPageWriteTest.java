@@ -26,7 +26,7 @@ public class HeapPageWriteTest extends SimpleDbTestBase {
     private HeapPageId pid;
 
     /**
-     * Set up initial resources for each unit test.
+     * Set up initial resources for each unit scantest.
      */
     @Before public void addTable() {
         this.pid = new HeapPageId(-1, -1);
@@ -34,7 +34,7 @@ public class HeapPageWriteTest extends SimpleDbTestBase {
     }
     
     /**
-     * Unit test for HeapPage.isDirty()
+     * Unit scantest for HeapPage.isDirty()
      */
     @Test public void testDirty() throws Exception {
         TransactionId tid = new TransactionId();
@@ -50,7 +50,7 @@ public class HeapPageWriteTest extends SimpleDbTestBase {
     }
 
     /**
-     * Unit test for HeapPage.addTuple()
+     * Unit scantest for HeapPage.addTuple()
      */
     @Test public void addTuple() throws Exception {
         HeapPage page = new HeapPage(pid, HeapPageReadTest.EXAMPLE_DATA);
@@ -91,7 +91,7 @@ public class HeapPageWriteTest extends SimpleDbTestBase {
     }
 
     /**
-     * Unit test for HeapPage.deleteTuple() with false tuples
+     * Unit scantest for HeapPage.deleteTuple() with false tuples
      */
     @Test(expected=DbException.class)
         public void deleteNonexistentTuple() throws Exception {
@@ -100,7 +100,7 @@ public class HeapPageWriteTest extends SimpleDbTestBase {
     }
 
     /**
-     * Unit test for HeapPage.deleteTuple()
+     * Unit scantest for HeapPage.deleteTuple()
      */
     @Test public void deleteTuple() throws Exception {
         HeapPage page = new HeapPage(pid, HeapPageReadTest.EXAMPLE_DATA);

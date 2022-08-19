@@ -25,7 +25,7 @@ public class StringAggregatorTest extends SimpleDbTestBase {
     int[][] count = null;
 
     /**
-     * Initialize each unit test
+     * Initialize each unit scantest
      */
     @Before
     public void createTupleList() {

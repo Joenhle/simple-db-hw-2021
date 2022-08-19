@@ -20,7 +20,7 @@ public class TransactionTest extends TestUtil.CreateHeapFile {
   private BufferPool bp;
 
   /**
-   * Set up initial resources for each unit test.
+   * Set up initial resources for each unit scantest.
    */
   @Before public void setUp() throws Exception {
     super.setUp();
@@ -45,7 +45,7 @@ public class TransactionTest extends TestUtil.CreateHeapFile {
     this.tid2 = new TransactionId();
 
     // forget about locks associated to tid, so they don't conflict with
-    // test cases
+    // scantest cases
     bp.getPage(tid, p0, Permissions.READ_WRITE).markDirty(true, tid);
     bp.getPage(tid, p1, Permissions.READ_WRITE).markDirty(true, tid);
     bp.getPage(tid, p2, Permissions.READ_WRITE).markDirty(true, tid);
@@ -54,7 +54,7 @@ public class TransactionTest extends TestUtil.CreateHeapFile {
   }
 
   /**
-   * Unit test for BufferPool.transactionComplete().
+   * Unit scantest for BufferPool.transactionComplete().
    * Try to acquire locks that would conflict if old locks aren't released
    * during transactionComplete().
    */
@@ -68,7 +68,7 @@ public class TransactionTest extends TestUtil.CreateHeapFile {
   }
 
   /**
-   * Common unit test code for BufferPool.transactionComplete() covering
+   * Common unit scantest code for BufferPool.transactionComplete() covering
    * commit and abort. Verify that commit persists changes to disk, and
    * that abort reverts pages to their previous on-disk state.
    */
@@ -103,7 +103,7 @@ public class TransactionTest extends TestUtil.CreateHeapFile {
   }
 
   /**
-   * Unit test for BufferPool.transactionComplete() assuing commit.
+   * Unit scantest for BufferPool.transactionComplete() assuing commit.
    * Verify that a tuple inserted during a committed transaction is durable
    */
   @Test public void commitTransaction() throws Exception {
@@ -111,7 +111,7 @@ public class TransactionTest extends TestUtil.CreateHeapFile {
   }
 
   /**
-   * Unit test for BufferPool.transactionComplete() assuming abort.
+   * Unit scantest for BufferPool.transactionComplete() assuming abort.
    * Verify that a tuple inserted during a committed transaction is durable
    */
   @Test public void abortTransaction() throws Exception {

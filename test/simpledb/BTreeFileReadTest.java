@@ -24,7 +24,7 @@ public class BTreeFileReadTest extends SimpleDbTestBase {
 	private TupleDesc td;
 
 	/**
-	 * Set up initial resources for each unit test.
+	 * Set up initial resources for each unit scantest.
 	 */
 	@Before
 	public void setUp() throws Exception {
@@ -39,13 +39,13 @@ public class BTreeFileReadTest extends SimpleDbTestBase {
 	}
 
 	/**
-	 * Unit test for BTreeFile.getId()
+	 * Unit scantest for BTreeFile.getId()
 	 */
 	@Test
 	public void getId() throws Exception {
 		int id = f.getId();
 
-		// NOTE(ghuo): the value could be anything. test determinism, at least.
+		// NOTE(ghuo): the value could be anything. scantest determinism, at least.
 		assertEquals(id, f.getId());
 		assertEquals(id, f.getId());
 
@@ -54,14 +54,14 @@ public class BTreeFileReadTest extends SimpleDbTestBase {
 	}
 
 	/**
-	 * Unit test for BTreeFile.getTupleDesc()
+	 * Unit scantest for BTreeFile.getTupleDesc()
 	 */
 	@Test
 	public void getTupleDesc() {
 		assertEquals(td, f.getTupleDesc());        
 	}
 	/**
-	 * Unit test for BTreeFile.numPages()
+	 * Unit scantest for BTreeFile.numPages()
 	 */
 	@Test
 	public void numPages() {
@@ -69,7 +69,7 @@ public class BTreeFileReadTest extends SimpleDbTestBase {
 	}
 
 	/**
-	 * Unit test for BTreeFile.readPage()
+	 * Unit scantest for BTreeFile.readPage()
 	 */
 	@Test
 	public void readPage() {
@@ -137,7 +137,7 @@ public class BTreeFileReadTest extends SimpleDbTestBase {
 	}
 
 	/**
-	 * Unit test for BTreeFile.indexIterator()
+	 * Unit scantest for BTreeFile.indexIterator()
 	 */
 	@Test public void indexIterator() throws Exception {
 		BTreeFile twoLeafPageFile = BTreeUtility.createBTreeFile(2, 520,

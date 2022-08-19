@@ -26,7 +26,7 @@ public class BTreeHeaderPageTest extends SimpleDbTestBase {
 	}
 
 	/**
-	 * Set up initial resources for each unit test.
+	 * Set up initial resources for each unit scantest.
 	 */
 	@Before public void addTable() {
 		this.pid = new BTreePageId(-1, -1, BTreePageId.HEADER);
@@ -34,7 +34,7 @@ public class BTreeHeaderPageTest extends SimpleDbTestBase {
 	}
 
 	/**
-	 * Unit test for BTreeHeaderPage.getId()
+	 * Unit scantest for BTreeHeaderPage.getId()
 	 */
 	@Test public void getId() throws Exception {
 		BTreeHeaderPage page = new BTreeHeaderPage(pid, EXAMPLE_DATA);
@@ -42,7 +42,7 @@ public class BTreeHeaderPageTest extends SimpleDbTestBase {
 	}
 
 	/**
-	 * Unit test for BTreeHeaderPage.getPrevPageId()
+	 * Unit scantest for BTreeHeaderPage.getPrevPageId()
 	 */
 	@Test public void getPrevPageId() throws Exception {
 		BTreeHeaderPage page = new BTreeHeaderPage(pid, EXAMPLE_DATA);
@@ -50,7 +50,7 @@ public class BTreeHeaderPageTest extends SimpleDbTestBase {
 	}
 
 	/**
-	 * Unit test for BTreeHeaderPage.getNextPageId()
+	 * Unit scantest for BTreeHeaderPage.getNextPageId()
 	 */
 	@Test public void getNextPageId() throws Exception {
 		BTreeHeaderPage page = new BTreeHeaderPage(pid, EXAMPLE_DATA);
@@ -58,7 +58,7 @@ public class BTreeHeaderPageTest extends SimpleDbTestBase {
 	}
 
 	/**
-	 * Unit test for BTreeHeaderPage.setPrevPageId()
+	 * Unit scantest for BTreeHeaderPage.setPrevPageId()
 	 */
 	@Test public void setPrevPageId() throws Exception {
 		BTreeHeaderPage page = new BTreeHeaderPage(pid, EXAMPLE_DATA);
@@ -76,7 +76,7 @@ public class BTreeHeaderPageTest extends SimpleDbTestBase {
 	}
 
 	/**
-	 * Unit test for BTreeHeaderPage.setNextPageId()
+	 * Unit scantest for BTreeHeaderPage.setNextPageId()
 	 */
 	@Test public void setNextPageId() throws Exception {
 		BTreeHeaderPage page = new BTreeHeaderPage(pid, EXAMPLE_DATA);
@@ -94,14 +94,14 @@ public class BTreeHeaderPageTest extends SimpleDbTestBase {
 	}
 
 	/**
-	 * Unit test for BTreeHeaderPage.numSlots()
+	 * Unit scantest for BTreeHeaderPage.numSlots()
 	 */
 	@Test public void numSlots() {
 		assertEquals(32704, BTreeHeaderPage.getNumSlots());
 	}
 
 	/**
-	 * Unit test for BTreeHeaderPage.getEmptySlot()
+	 * Unit scantest for BTreeHeaderPage.getEmptySlot()
 	 */
 	@Test public void getEmptySlot() throws Exception {
 		BTreeHeaderPage page = new BTreeHeaderPage(pid, EXAMPLE_DATA);
@@ -113,7 +113,7 @@ public class BTreeHeaderPageTest extends SimpleDbTestBase {
 	}
 
 	/**
-	 * Unit test for BTreeHeaderPage.isSlotUsed() and BTreeHeaderPage.markSlotUsed()
+	 * Unit scantest for BTreeHeaderPage.isSlotUsed() and BTreeHeaderPage.markSlotUsed()
 	 */
 	@Test public void getSlot() throws Exception {
 		BTreeHeaderPage page = new BTreeHeaderPage(pid, EXAMPLE_DATA);
@@ -140,7 +140,7 @@ public class BTreeHeaderPageTest extends SimpleDbTestBase {
 	}
 
 	/**
-	 * Unit test for BTreeHeaderPage.getPageData()
+	 * Unit scantest for BTreeHeaderPage.getPageData()
 	 */
 	@Test public void getPageData() throws Exception {
 		BTreeHeaderPage page0 = new BTreeHeaderPage(pid, EXAMPLE_DATA);
@@ -169,7 +169,7 @@ public class BTreeHeaderPageTest extends SimpleDbTestBase {
 	}
 
 	/**
-	 * Unit test for BTreeHeaderPage.isDirty()
+	 * Unit scantest for BTreeHeaderPage.isDirty()
 	 */
 	@Test public void testDirty() throws Exception {
 		TransactionId tid = new TransactionId();

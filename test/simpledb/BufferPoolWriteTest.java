@@ -56,7 +56,7 @@ public class BufferPoolWriteTest extends TestUtil.CreateHeapFile {
     }
     
     /**
-     * Set up initial resources for each unit test.
+     * Set up initial resources for each unit scantest.
      */
     @Before public void setUp() throws Exception {
         super.setUp();
@@ -68,7 +68,7 @@ public class BufferPoolWriteTest extends TestUtil.CreateHeapFile {
     }
 
     /**
-     * Unit test for BufferPool.insertTuple()
+     * Unit scantest for BufferPool.insertTuple()
      */
     @Test public void insertTuple() throws Exception {
         // we should be able to add 504 tuples on an empty page.
@@ -89,7 +89,7 @@ public class BufferPoolWriteTest extends TestUtil.CreateHeapFile {
     }
     
     /**
-     * Unit test for BufferPool.deleteTuple()
+     * Unit scantest for BufferPool.deleteTuple()
      */
     @Test public void deleteTuple() throws Exception {
 

@@ -34,7 +34,7 @@ public class CatalogTest extends SimpleDbTestBase {
     }
 
     /**
-     * Unit test for Catalog.getTupleDesc()
+     * Unit scantest for Catalog.getTupleDesc()
      */
     @Test public void getTupleDesc() {
         TupleDesc expected = Utility.getTupleDesc(2);
@@ -44,7 +44,7 @@ public class CatalogTest extends SimpleDbTestBase {
     }
 
     /**
-     * Unit test for Catalog.getTableId()
+     * Unit scantest for Catalog.getTableId()
      */
     @Test public void getTableId() {
         assertEquals(id2, Database.getCatalog().getTableId(name));
@@ -66,7 +66,7 @@ public class CatalogTest extends SimpleDbTestBase {
     }
 
     /**
-     * Unit test for Catalog.getDatabaseFile()
+     * Unit scantest for Catalog.getDatabaseFile()
      */
 
     @Test public void getDatabaseFile() {

@@ -21,7 +21,7 @@ public class BTreeFileInsertTest extends SimpleDbTestBase {
 	private TransactionId tid;
 	
 	/**
-	 * Set up initial resources for each unit test.
+	 * Set up initial resources for each unit scantest.
 	 */
 	@Before
 	public void setUp() {

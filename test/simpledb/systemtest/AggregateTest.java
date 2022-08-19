@@ -121,7 +121,7 @@ public class AggregateTest extends SimpleDbTestBase {
         doAggregate(Aggregator.Op.AVG, Aggregator.NO_GROUPING);
     }
 
-    /** Make test compatible with older version of ant. */
+    /** Make scantest compatible with older version of ant. */
     public static junit.framework.Test suite() {
         return new junit.framework.JUnit4TestAdapter(AggregateTest.class);
     }

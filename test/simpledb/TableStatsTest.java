@@ -51,7 +51,7 @@ public class TableStatsTest extends SimpleDbTestBase {
 	}
 	/**
 	 * Verify the cost estimates of scanning various numbers of pages from a HeapFile
-	 * This test checks that the estimateScanCost is: 
+	 * This scantest checks that the estimateScanCost is:
 	 *   +linear in numPages when IO_COST is constant
 	 *   +linear in IO_COST when numPages is constant
 	 *   +quadratic when IO_COST and numPages increase linearly.

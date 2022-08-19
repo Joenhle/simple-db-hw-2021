@@ -686,7 +686,7 @@ and place the `some_data_file.dat` file in the top level directory. Then run:
 
 ```
 ant
-java -classpath dist/simpledb.jar simpledb.test
+java -classpath dist/simpledb.jar simpledb.walkthrough.lab1.scantest
 ```
 
 Note that `ant` compiles `test.java` and generates a new jarfile that contains it.

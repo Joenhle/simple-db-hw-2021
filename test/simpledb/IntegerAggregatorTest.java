@@ -25,7 +25,7 @@ public class IntegerAggregatorTest extends SimpleDbTestBase {
     int[][] avg = null;
 
     /**
-     * Initialize each unit test
+     * Initialize each unit scantest
      */
     @Before
     public void createTupleList() {

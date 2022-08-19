@@ -27,7 +27,7 @@ public class BTreeNextKeyLockingTest extends SimpleDbTestBase {
 	private static final int POLL_INTERVAL = 100;
 
 	/**
-	 * Set up initial resources for each unit test.
+	 * Set up initial resources for each unit scantest.
 	 */
 	@Before
 	public void setUp() {

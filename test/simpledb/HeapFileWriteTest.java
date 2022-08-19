@@ -18,7 +18,7 @@ public class HeapFileWriteTest extends TestUtil.CreateHeapFile {
     private TransactionId tid;
 
     /**
-     * Set up initial resources for each unit test.
+     * Set up initial resources for each unit scantest.
      */
     @Before public void setUp() throws Exception {
         super.setUp();
@@ -30,7 +30,7 @@ public class HeapFileWriteTest extends TestUtil.CreateHeapFile {
     }
 
     /**
-     * Unit test for HeapFile.addTuple()
+     * Unit scantest for HeapFile.addTuple()
      */
     @Test public void addTuple() throws Exception {
         // we should be able to add 504 tuples on an empty page.

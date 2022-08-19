@@ -25,7 +25,7 @@ public class BTreePageIdTest extends SimpleDbTestBase {
 	}
 
 	/**
-	 * Unit test for BTreePageId.getTableId()
+	 * Unit scantest for BTreePageId.getTableId()
 	 */
 	@Test public void getTableId() {
 		assertEquals(1, rootPtrId.getTableId());
@@ -35,7 +35,7 @@ public class BTreePageIdTest extends SimpleDbTestBase {
 	}
 
 	/**
-	 * Unit test for BTreePageId.pageno()
+	 * Unit scantest for BTreePageId.pageno()
 	 */
 	@Test public void pageno() {
 		assertEquals(0, rootPtrId.getPageNumber());
@@ -45,12 +45,12 @@ public class BTreePageIdTest extends SimpleDbTestBase {
 	}
 
 	/**
-	 * Unit test for BTreePageId.hashCode()
+	 * Unit scantest for BTreePageId.hashCode()
 	 */
 	@Test public void testHashCode() {
 		int code1, code2, code3, code4;
 
-		// NOTE(ghuo): the hashCode could be anything. test determinism,
+		// NOTE(ghuo): the hashCode could be anything. scantest determinism,
 		// at least.
 		code1 = rootPtrId.hashCode();
 		assertEquals(code1, rootPtrId.hashCode());
@@ -70,7 +70,7 @@ public class BTreePageIdTest extends SimpleDbTestBase {
 	}
 
 	/**
-	 * Unit test for BTreePageId.equals()
+	 * Unit scantest for BTreePageId.equals()
 	 */
 	@Test public void equals() {
 		BTreePageId pid1 = new BTreePageId(1, 1, BTreePageId.LEAF);

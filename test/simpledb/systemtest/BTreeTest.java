@@ -22,7 +22,7 @@ import simpledb.execution.Predicate.Op;
 import simpledb.transaction.TransactionId;
 
 /**
- * System test for the BTree
+ * System scantest for the BTree
  */
 public class BTreeTest extends SimpleDbTestBase {
     private final static Random r = new Random();
@@ -85,7 +85,7 @@ public class BTreeTest extends SimpleDbTestBase {
 	
     /** Test that doing lots of inserts and deletes in multiple threads works */
     @Test public void testBigFile() throws Exception {
-    	// For this test we will decrease the size of the Buffer Pool pages
+    	// For this scantest we will decrease the size of the Buffer Pool pages
     	BufferPool.setPageSize(1024);
     	
     	// This should create a B+ tree with a packed second tier of internal pages
@@ -95,7 +95,7 @@ public class BTreeTest extends SimpleDbTestBase {
 		BTreeFile bf = BTreeUtility.createRandomBTreeFile(2, 31000,
 				null, tuples, 0);
 		
-		// we will need more room in the buffer pool for this test
+		// we will need more room in the buffer pool for this scantest
 		Database.resetBufferPool(500);
     	
     	BlockingQueue<List<Integer>> insertedTuples = new ArrayBlockingQueue<>(100000);
@@ -217,7 +217,7 @@ public class BTreeTest extends SimpleDbTestBase {
 		
     }
 
-    /** Make test compatible with older version of ant. */
+    /** Make scantest compatible with older version of ant. */
     public static junit.framework.Test suite() {
         return new junit.framework.JUnit4TestAdapter(BTreeTest.class);
     }

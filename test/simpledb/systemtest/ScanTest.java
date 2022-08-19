@@ -130,7 +130,7 @@ public class ScanTest extends SimpleDbTestBase {
     @Test
     public void testTupleDesc() throws IOException {
         List<List<Integer>> tuples = new ArrayList<>();
-        HeapFile f = SystemTestUtil.createRandomHeapFile(2, 1000, null, tuples, "test");
+        HeapFile f = SystemTestUtil.createRandomHeapFile(2, 1000, null, tuples, "scantest");
 
         TransactionId tid = new TransactionId();
         String prefix = "table_alias";
@@ -150,7 +150,7 @@ public class ScanTest extends SimpleDbTestBase {
     }
 
     /**
-     * Make test compatible with older version of ant.
+     * Make scantest compatible with older version of ant.
      */
     public static junit.framework.Test suite() {
         return new junit.framework.JUnit4TestAdapter(ScanTest.class);

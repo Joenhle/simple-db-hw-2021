@@ -77,7 +77,7 @@ public class InsertTest extends SimpleDbTestBase {
         validateInsert(1, 1, 1);
     }
 
-    /** Make test compatible with older version of ant. */
+    /** Make scantest compatible with older version of ant. */
     public static junit.framework.Test suite() {
         return new junit.framework.JUnit4TestAdapter(InsertTest.class);
     }

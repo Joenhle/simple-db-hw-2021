@@ -19,26 +19,26 @@ public class HeapPageIdTest extends SimpleDbTestBase {
     }
 
     /**
-     * Unit test for HeapPageId.getTableId()
+     * Unit scantest for HeapPageId.getTableId()
      */
     @Test public void getTableId() {
         assertEquals(1, pid.getTableId());
     }
 
     /**
-     * Unit test for HeapPageId.pageno()
+     * Unit scantest for HeapPageId.pageno()
      */
     @Test public void pageno() {
         assertEquals(1, pid.getPageNumber());
     }
 
     /**
-     * Unit test for HeapPageId.hashCode()
+     * Unit scantest for HeapPageId.hashCode()
      */
     @Test public void testHashCode() {
         int code1, code2;
 
-        // NOTE(ghuo): the hashCode could be anything. test determinism,
+        // NOTE(ghuo): the hashCode could be anything. scantest determinism,
         // at least.
         pid = new HeapPageId(1, 1);
         code1 = pid.hashCode();
@@ -52,7 +52,7 @@ public class HeapPageIdTest extends SimpleDbTestBase {
     }
 
     /**
-     * Unit test for HeapPageId.equals()
+     * Unit scantest for HeapPageId.equals()
      */
     @Test public void equals() {
         HeapPageId pid1 = new HeapPageId(1, 1);

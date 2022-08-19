@@ -22,7 +22,7 @@ public class BTreeFileDeleteTest extends SimpleDbTestBase {
 	private TransactionId tid;
 
 	/**
-	 * Set up initial resources for each unit test.
+	 * Set up initial resources for each unit scantest.
 	 */
 	@Before
 	public void setUp() {
@@ -194,7 +194,7 @@ public class BTreeFileDeleteTest extends SimpleDbTestBase {
 				null, null, 0);
 		BTreeChecker.checkRep(bf, tid, new HashMap<>(), true);
 
-		Database.resetBufferPool(500); // we need more pages for this test
+		Database.resetBufferPool(500); // we need more pages for this scantest
 
 		BTreeRootPtrPage rootPtr = (BTreeRootPtrPage) Database.getBufferPool().getPage(
 				tid, BTreeRootPtrPage.getId(bf.getId()), Permissions.READ_ONLY);
@@ -208,7 +208,7 @@ public class BTreeFileDeleteTest extends SimpleDbTestBase {
 		BTreeInternalPage rightChild = (BTreeInternalPage) Database.getBufferPool().getPage(
 				tid, rootEntry.getRightChild(), Permissions.READ_ONLY);
 
-		// delete from the right child to test redistribution from the left
+		// delete from the right child to scantest redistribution from the left
 		Iterator<BTreeEntry> it = rightChild.iterator();
 		int count = 0;
 		// bring the right internal page to minimum occupancy
@@ -251,7 +251,7 @@ public class BTreeFileDeleteTest extends SimpleDbTestBase {
 
 	@Test
 	public void testDeleteInternalPages() throws Exception {
-    	// For this test we will decrease the size of the Buffer Pool pages
+    	// For this scantest we will decrease the size of the Buffer Pool pages
     	BufferPool.setPageSize(1024);
 		
 		// This should create a B+ tree with three nodes in the second tier
@@ -263,7 +263,7 @@ public class BTreeFileDeleteTest extends SimpleDbTestBase {
 
 		BTreeChecker.checkRep(bigFile, tid, new HashMap<>(), true);
 
-		Database.resetBufferPool(500); // we need more pages for this test
+		Database.resetBufferPool(500); // we need more pages for this scantest
 
 		BTreeRootPtrPage rootPtr = (BTreeRootPtrPage) Database.getBufferPool().getPage(
 				tid, BTreeRootPtrPage.getId(bigFile.getId()), Permissions.READ_ONLY);

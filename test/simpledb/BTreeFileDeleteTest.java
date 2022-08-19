@@ -21,7 +21,7 @@ public class BTreeFileDeleteTest extends SimpleDbTestBase {
 	private TransactionId tid;
 
 	/**
-	 * Set up initial resources for each unit test.
+	 * Set up initial resources for each unit scantest.
 	 */
 	@Before
 	public void setUp() {
@@ -34,7 +34,7 @@ public class BTreeFileDeleteTest extends SimpleDbTestBase {
 	}
 
 	/**
-	 * Unit test for BTreeFile.deleteTuple()
+	 * Unit scantest for BTreeFile.deleteTuple()
 	 */
 	@Test public void deleteTuple() throws Exception {
 		BTreeFile f;

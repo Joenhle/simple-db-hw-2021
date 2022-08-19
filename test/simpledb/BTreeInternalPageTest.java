@@ -75,7 +75,7 @@ public class BTreeInternalPageTest extends SimpleDbTestBase {
 	}
 
 	/**
-	 * Set up initial resources for each unit test.
+	 * Set up initial resources for each unit scantest.
 	 */
 	@Before public void addTable() {
 		this.pid = new BTreePageId(-1, -1, BTreePageId.INTERNAL);
@@ -83,7 +83,7 @@ public class BTreeInternalPageTest extends SimpleDbTestBase {
 	}
 
 	/**
-	 * Unit test for BTreeInternalPage.getId()
+	 * Unit scantest for BTreeInternalPage.getId()
 	 */
 	@Test public void getId() throws Exception {
 		BTreeInternalPage page = new BTreeInternalPage(pid, EXAMPLE_DATA, 0);
@@ -91,7 +91,7 @@ public class BTreeInternalPageTest extends SimpleDbTestBase {
 	}
 
 	/**
-	 * Unit test for BTreeInternalPage.getParentId()
+	 * Unit scantest for BTreeInternalPage.getParentId()
 	 */
 	@Test public void getParentId() throws Exception {
 		BTreeInternalPage page = new BTreeInternalPage(pid, EXAMPLE_DATA, 0);
@@ -99,7 +99,7 @@ public class BTreeInternalPageTest extends SimpleDbTestBase {
 	}
 
 	/**
-	 * Unit test for BTreeInternalPage.getParentId()
+	 * Unit scantest for BTreeInternalPage.getParentId()
 	 */
 	@Test public void setParentId() throws Exception {
 		BTreeInternalPage page = new BTreeInternalPage(pid, EXAMPLE_DATA, 0);
@@ -125,7 +125,7 @@ public class BTreeInternalPageTest extends SimpleDbTestBase {
 	}
 
 	/**
-	 * Unit test for BTreeInternalPage.iterator()
+	 * Unit scantest for BTreeInternalPage.iterator()
 	 */
 	@Test public void testIterator() throws Exception {
 		BTreeInternalPage page = new BTreeInternalPage(pid, EXAMPLE_DATA, 0);
@@ -150,7 +150,7 @@ public class BTreeInternalPageTest extends SimpleDbTestBase {
 	}
 
 	/**
-	 * Unit test for BTreeInternalPage.reverseIterator()
+	 * Unit scantest for BTreeInternalPage.reverseIterator()
 	 */
 	@Test public void testReverseIterator() throws Exception {
 		BTreeInternalPage page = new BTreeInternalPage(pid, EXAMPLE_DATA, 0);
@@ -175,7 +175,7 @@ public class BTreeInternalPageTest extends SimpleDbTestBase {
 	}
 
 	/**
-	 * Unit test for BTreeInternalPage.getNumEmptySlots()
+	 * Unit scantest for BTreeInternalPage.getNumEmptySlots()
 	 */
 	@Test public void getNumEmptySlots() throws Exception {
 		BTreeInternalPage page = new BTreeInternalPage(pid, EXAMPLE_DATA, 0);
@@ -183,7 +183,7 @@ public class BTreeInternalPageTest extends SimpleDbTestBase {
 	}
 
 	/**
-	 * Unit test for BTreeInternalPage.isSlotUsed()
+	 * Unit scantest for BTreeInternalPage.isSlotUsed()
 	 */
 	@Test public void getSlot() throws Exception {
 		BTreeInternalPage page = new BTreeInternalPage(pid, EXAMPLE_DATA, 0);
@@ -197,7 +197,7 @@ public class BTreeInternalPageTest extends SimpleDbTestBase {
 	}
 
 	/**
-	 * Unit test for BTreeInternalPage.isDirty()
+	 * Unit scantest for BTreeInternalPage.isDirty()
 	 */
 	@Test public void testDirty() throws Exception {
 		TransactionId tid = new TransactionId();
@@ -213,7 +213,7 @@ public class BTreeInternalPageTest extends SimpleDbTestBase {
 	}
 
 	/**
-	 * Unit test for BTreeInternalPage.addEntry()
+	 * Unit scantest for BTreeInternalPage.addEntry()
 	 */
 	@Test public void addEntry() throws Exception {
 		// create a blank page
@@ -281,7 +281,7 @@ public class BTreeInternalPageTest extends SimpleDbTestBase {
 	}
 
 	/**
-	 * Unit test for BTreeInternalPage.deleteEntry() with false entries
+	 * Unit scantest for BTreeInternalPage.deleteEntry() with false entries
 	 */
 	@Test(expected=DbException.class)
 	public void deleteNonexistentEntry() throws Exception {
@@ -290,7 +290,7 @@ public class BTreeInternalPageTest extends SimpleDbTestBase {
 	}
 
 	/**
-	 * Unit test for BTreeInternalPage.deleteEntry()
+	 * Unit scantest for BTreeInternalPage.deleteEntry()
 	 */
 	@Test public void deleteEntry() throws Exception {
 		BTreeInternalPage page = new BTreeInternalPage(pid, EXAMPLE_DATA, 0);

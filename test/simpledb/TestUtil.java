@@ -184,7 +184,7 @@ public class TestUtil {
 
         // check that we grabbed the entire file
         if (offset < buf.length)
-            throw new IOException("failed to read test data");
+            throw new IOException("failed to read scantest data");
 
         // Close the input stream and return bytes
         is.close();

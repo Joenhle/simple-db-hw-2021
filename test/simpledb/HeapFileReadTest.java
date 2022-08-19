@@ -21,7 +21,7 @@ public class HeapFileReadTest extends SimpleDbTestBase {
     private TupleDesc td;
 
     /**
-     * Set up initial resources for each unit test.
+     * Set up initial resources for each unit scantest.
      */
     @Before
     public void setUp() throws Exception {
@@ -36,13 +36,13 @@ public class HeapFileReadTest extends SimpleDbTestBase {
     }
 
     /**
-     * Unit test for HeapFile.getId()
+     * Unit scantest for HeapFile.getId()
      */
     @Test
     public void getId() throws Exception {
         int id = hf.getId();
 
-        // NOTE(ghuo): the value could be anything. test determinism, at least.
+        // NOTE(ghuo): the value could be anything. scantest determinism, at least.
         assertEquals(id, hf.getId());
         assertEquals(id, hf.getId());
 
@@ -51,14 +51,14 @@ public class HeapFileReadTest extends SimpleDbTestBase {
     }
 
     /**
-     * Unit test for HeapFile.getTupleDesc()
+     * Unit scantest for HeapFile.getTupleDesc()
      */
     @Test
     public void getTupleDesc() {
         assertEquals(td, hf.getTupleDesc());        
     }
     /**
-     * Unit test for HeapFile.numPages()
+     * Unit scantest for HeapFile.numPages()
      */
     @Test
     public void numPages() {
@@ -67,7 +67,7 @@ public class HeapFileReadTest extends SimpleDbTestBase {
     }
 
     /**
-     * Unit test for HeapFile.readPage()
+     * Unit scantest for HeapFile.readPage()
      */
     @Test
     public void readPage() {

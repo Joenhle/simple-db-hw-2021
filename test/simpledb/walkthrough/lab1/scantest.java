@@ -1,4 +1,4 @@
-package simpledb;
+package simpledb.walkthrough.lab1;
 
 import simpledb.common.Database;
 import simpledb.common.Type;
@@ -10,7 +10,7 @@ import simpledb.transaction.TransactionId;
 
 import java.io.File;
 
-public class test {
+public class scantest {
 
     public static void main(String[] argv) {
         // construct a 3-column table schema
@@ -20,8 +20,8 @@ public class test {
 
         // create the table, associate it with some_data_file.txt
         // and tell the catalog about the schema of this table.
-        HeapFile table1 = new HeapFile(new File("some_data_file.dat"), descriptor);
-        Database.getCatalog().addTable(table1, "test");
+        HeapFile table1 = new HeapFile(new File("test/simpledb/walkthrough/lab1/some_data_file.dat"), descriptor);
+        Database.getCatalog().addTable(table1, "scantest");
 
         // construct the query: we use a simple SeqScan, which spoonfeeds
         // tuples via its iterator.
