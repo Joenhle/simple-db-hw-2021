@@ -3,6 +3,7 @@ package simpledb;
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.junit.Assert;
 import org.junit.Before;
@@ -119,7 +120,6 @@ public class JoinOptimizerTest extends SimpleDbTestBase {
         // It's hard to narrow these down much at all, because students
         // may have implemented custom join algorithms.
         // So, just make sure the orders of the return values make sense.
-
         TransactionId tid = new TransactionId();
         JoinOptimizer jo;
         Parser p = new Parser();
@@ -359,7 +359,6 @@ public class JoinOptimizerTest extends SimpleDbTestBase {
                         tid,
                         "SELECT * FROM emp,dept,hobbies,hobby WHERE emp.c1 = dept.c0 AND hobbies.c0 = emp.c2 AND hobbies.c1 = hobby.c0 AND e.c3 < 1000;"),
                 nodes);
-
         // Set the last boolean here to 'true' in order to have orderJoins()
         // print out its logic
         result = j.orderJoins(stats, filterSelectivities, false);
@@ -506,7 +505,6 @@ public class JoinOptimizerTest extends SimpleDbTestBase {
         nodes.add(new LogicalJoinNode("m", "n", "c1", "c1", Predicate.Op.EQUALS));
         nodes.add(new LogicalJoinNode("n", "bigTable", "c0", "c0",
                 Predicate.Op.EQUALS));
-
         // Make sure we don't give the nodes to the optimizer in a nice order
         Collections.shuffle(nodes);
         Parser p = new Parser();

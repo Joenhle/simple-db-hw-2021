@@ -72,9 +72,6 @@ public class HeapFile implements DbFile {
     // see DbFile.java for javadocs
     public Page readPage(PageId pid) {
         try {
-            if (pid.getPageNumber() >= numPages()) {
-                throw new IllegalArgumentException("pidNo" + pid.getPageNumber() + "超出了File拥有的文件范围0~" + numPages());
-            }
             byte[] data = FileUtil.readContent(file, pid.getPageNumber() * BufferPool.getPageSize(), BufferPool.getPageSize());
             HeapPage page = new HeapPage((HeapPageId) pid, data);
             return page;

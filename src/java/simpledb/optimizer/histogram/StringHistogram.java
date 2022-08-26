@@ -1,6 +1,7 @@
-package simpledb.optimizer;
+package simpledb.optimizer.histogram;
 
 import simpledb.execution.Predicate;
+import simpledb.optimizer.histogram.IntHistogram;
 
 /**
  * A class to represent a fixed-width histogram over a single String-based
@@ -26,7 +27,7 @@ public class StringHistogram {
      * Convert a string to an integer, with the property that if the return
      * value(s1) < return value(s2), then s1 < s2
      */
-    private int stringToInt(String s) {
+    public static int stringToInt(String s) {
         int i;
         int v = 0;
         for (i = 3; i >= 0; i--) {
@@ -52,12 +53,12 @@ public class StringHistogram {
     }
 
     /** @return the maximum value indexed by the histogram */
-    int maxVal() {
+    public static int maxVal() {
         return stringToInt("zzzz");
     }
 
     /** @return the minimum value indexed by the histogram */
-    int minVal() {
+    public static int minVal() {
         return stringToInt("");
     }
 

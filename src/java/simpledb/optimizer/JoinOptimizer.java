@@ -3,6 +3,7 @@ package simpledb.optimizer;
 import simpledb.common.Database;
 import simpledb.ParsingException;
 import simpledb.execution.*;
+import simpledb.optimizer.histogram.JointHistogram;
 import simpledb.storage.TupleDesc;
 
 import java.util.*;
@@ -119,8 +120,7 @@ public class JoinOptimizer {
      * @return An estimate of the cost of this query, in terms of cost1 and
      *         cost2
      */
-    public double estimateJoinCost(LogicalJoinNode j, int card1, int card2,
-            double cost1, double cost2) {
+    public double estimateJoinCost(LogicalJoinNode j, int card1, int card2, double cost1, double cost2) {
         if (j instanceof LogicalSubplanJoinNode) {
             // A LogicalSubplanJoinNode represents a subquery.
             // You do not need to implement proper support for these for Lab 3.
@@ -130,7 +130,12 @@ public class JoinOptimizer {
             // HINT: You may need to use the variable "j" if you implemented
             // a join algorithm that's more complicated than a basic
             // nested-loops join.
-            return -1.0;
+
+            //这里采用的是nl join，所以不需要用到j，以后可以实现多个j
+            //todo 以后可以对join进行扩展，这里的cost也需要重新计算。
+            double IOCost = cost1 + card1 * cost2;
+            double CPUCost = card1 * card2;
+            return IOCost + CPUCost;
         }
     }
 
@@ -153,16 +158,13 @@ public class JoinOptimizer {
      *            The table stats, referenced by table names, not alias
      * @return The cardinality of the join
      */
-    public int estimateJoinCardinality(LogicalJoinNode j, int card1, int card2,
-            boolean t1pkey, boolean t2pkey, Map<String, TableStats> stats) {
+    public int estimateJoinCardinality(LogicalJoinNode j, int card1, int card2, boolean t1pkey, boolean t2pkey, Map<String, TableStats> stats) {
         if (j instanceof LogicalSubplanJoinNode) {
             // A LogicalSubplanJoinNode represents a subquery.
             // You do not need to implement proper support for these for Lab 3.
             return card1;
         } else {
-            return estimateTableJoinCardinality(j.p, j.t1Alias, j.t2Alias,
-                    j.f1PureName, j.f2PureName, card1, card2, t1pkey, t2pkey,
-                    stats, p.getTableAliasToIdMapping());
+            return estimateTableJoinCardinality(j.p, j.t1Alias, j.t2Alias, j.f1PureName, j.f2PureName, card1, card2, t1pkey, t2pkey, stats, p.getTableAliasToIdMapping());
         }
     }
 
@@ -174,9 +176,40 @@ public class JoinOptimizer {
                                                    String field2PureName, int card1, int card2, boolean t1pkey,
                                                    boolean t2pkey, Map<String, TableStats> stats,
                                                    Map<String, Integer> tableAliasToId) {
-        int card = 1;
-        // some code goes here
-        return card <= 0 ? 1 : card;
+
+        String tableName1 = Database.getCatalog().getTableName(tableAliasToId.get(table1Alias)),
+                tableName2 = Database.getCatalog().getTableName(tableAliasToId.get(table2Alias));
+
+        JointHistogram jointHistogram = TableStats.getJointHistogram(tableName1, tableName2, field1PureName, field2PureName);
+        if (jointHistogram != null) {
+            int cardinality = jointHistogram.estimateCardinality(joinOp);
+            System.out.println(String.format("JointHistogram success, the jointHistogram cardinality of %s.%s %s %s.%s is %d", tableName1, field1PureName, joinOp.toString(), tableName2, field2PureName, cardinality));
+            if (t1pkey && !t2pkey) {
+                return Math.min(cardinality, card2);
+            } else if (!t1pkey && t2pkey) {
+                return Math.min(cardinality, card1);
+            } else if (t1pkey && t2pkey) {
+                return Math.min(cardinality, Math.min(card1, card2));
+            }
+            return cardinality;
+        } else {
+            if (joinOp.equals(Predicate.Op.EQUALS)) {
+                //todo 这里可以用C(A,S)来优化，参考CMU15445 Optimizer-2节的方法
+                if (t1pkey && !t2pkey) {
+                    return card2;
+                } else if (!t1pkey && t2pkey) {
+                    return card1;
+                } else if (t1pkey && t2pkey) {
+                    return Math.min(card1, card2);
+                }
+                return Math.max(card1, card2);
+            } else if (joinOp.equals(Predicate.Op.NOT_EQUALS)) {
+                return card1 * card2 - estimateTableJoinCardinality(Predicate.Op.EQUALS, table1Alias, table2Alias, field1PureName, field2PureName, card1, card2, t1pkey, t2pkey, stats, tableAliasToId);
+            } else {
+                return (int) (0.3 * card1 * card2);
+            }
+        }
+
     }
 
     /**
@@ -231,14 +264,26 @@ public class JoinOptimizer {
      *             when stats or filter selectivities is missing a table in the
      *             join, or or when another internal error occurs
      */
-    public List<LogicalJoinNode> orderJoins(
-            Map<String, TableStats> stats,
-            Map<String, Double> filterSelectivities, boolean explain)
-            throws ParsingException {
-
-        // some code goes here
-        //Replace the following
-        return joins;
+    public List<LogicalJoinNode> orderJoins(Map<String, TableStats> stats, Map<String, Double> filterSelectivities, boolean explain) throws ParsingException {
+        PlanCache planCache = new PlanCache();
+        for (int i = 1; i <= joins.size(); i++) {
+            for (Set<LogicalJoinNode> s : enumerateSubsets(joins, i)) {
+                CostCard bestPlan = new CostCard();
+                bestPlan.cost = Double.MAX_VALUE;
+                for (LogicalJoinNode node : s) {
+                    CostCard costCard = computeCostAndCardOfSubplan(stats, filterSelectivities, node, s, bestPlan.cost, planCache);
+                    if (costCard != null) {
+                        bestPlan = costCard;
+                    }
+                }
+                planCache.addPlan(s, bestPlan.cost, bestPlan.card, bestPlan.plan);
+            }
+        }
+        List<LogicalJoinNode> orderedJoins = planCache.getOrder(new HashSet<>(joins));
+        if (explain) {
+            printJoins(orderedJoins, planCache, stats, filterSelectivities);
+        }
+        return orderedJoins;
     }
 
     // ===================== Private Methods =================================

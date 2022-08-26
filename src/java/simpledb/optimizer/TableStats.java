@@ -3,13 +3,14 @@ package simpledb.optimizer;
 import simpledb.common.Database;
 import simpledb.common.Type;
 import simpledb.execution.Predicate;
-import simpledb.execution.SeqScan;
+import simpledb.index.BTreeFile;
+import simpledb.optimizer.histogram.IntHistogram;
+import simpledb.optimizer.histogram.JointHistogram;
+import simpledb.optimizer.histogram.StringHistogram;
 import simpledb.storage.*;
-import simpledb.transaction.Transaction;
+import simpledb.transaction.TransactionId;
 
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -19,11 +20,89 @@ import java.util.concurrent.ConcurrentMap;
  * 
  * This class is not needed in implementing lab1 and lab2.
  */
+
+class GlobalHistogram {
+
+    private HashMap<Integer, int[][]> maxMinMap;
+    private ConcurrentMap<String, JointHistogram> jointHistogramMap;
+    public GlobalHistogram() {
+        maxMinMap = new HashMap<>();
+        jointHistogramMap = new ConcurrentHashMap<>();
+    }
+    public JointHistogram getJointHistogram(String key) {
+        return jointHistogramMap.get(key);
+    }
+    public void addMaxMin(int tableId, int[][] maxMin) {
+        maxMinMap.put(tableId, maxMin);
+    }
+    public void compute() {
+        List<Integer> tableIdArr = new ArrayList<>();
+        for (int key : maxMinMap.keySet()) {
+            tableIdArr.add(key);
+        }
+        for (int i = 0; i < tableIdArr.size(); i++) {
+            for (int j = i; j < tableIdArr.size(); j++) {
+                int tableId1 = tableIdArr.get(i), tableId2 = tableIdArr.get(j);
+                String tName1 = Database.getCatalog().getTableName(tableId1), tName2 = Database.getCatalog().getTableName(tableId2);
+                TupleDesc tDesc1 = Database.getCatalog().getTupleDesc(tableId1), tDesc2 = Database.getCatalog().getTupleDesc(tableId2);
+                DbFileIterator iter1 = Database.getCatalog().getDatabaseFile(tableId1).iterator(new TransactionId()),
+                        iter2 = Database.getCatalog().getDatabaseFile(tableId2).iterator(new TransactionId());
+                int[][] maxMin1 = maxMinMap.get(tableId1), maxMin2 = maxMinMap.get(tableId2);
+                for (int m = 0; m < tDesc1.numFields(); m++) {
+                    for (int n = 0; n < tDesc2.numFields(); n++) {
+                        if (tDesc1.getFieldType(m) == tDesc2.getFieldType(n)) {
+                            String key1 = String.format("%s.%s_%s.%s", tName1, tDesc1.getFieldName(m), tName2, tDesc2.getFieldName(n));
+                            String key2 = String.format("%s.%s_%s.%s", tName2, tDesc2.getFieldName(n), tName1, tDesc1.getFieldName(m));
+                            JointHistogram joint;
+                            if (tDesc1.getFieldType(m).equals(Type.INT_TYPE)) {
+                                //构建new -> old joint
+                                joint = new JointHistogram(TableStats.NUM_HIST_BINS, maxMin1[m][1], maxMin1[m][0]);
+                                joint.addValueByIterator(iter1, m, iter2, n);
+                                jointHistogramMap.put(key1, joint);
+                                //构建old -> new joint
+                                joint = new JointHistogram(TableStats.NUM_HIST_BINS, maxMin2[n][1], maxMin2[n][0]);
+                                joint.addValueByIterator(iter2, n, iter1, m);
+                                jointHistogramMap.put(key2, joint);
+                            } else {
+                                //构建new -> old joint
+                                joint = new JointHistogram(TableStats.NUM_HIST_BINS);
+                                joint.addValueByIterator(iter1, m, iter2, n);
+                                jointHistogramMap.put(key1, joint);
+                                //构建old -> new joint
+                                joint = new JointHistogram(TableStats.NUM_HIST_BINS);
+                                joint.addValueByIterator(iter2, n, iter1, m);
+                                jointHistogramMap.put(key2, joint);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+}
+
+
 public class TableStats {
+
+    private DbFile dbFile;
+    private int ioCostPerPage;
+    private int ntups;
+    private ArrayList histograms;
+    //for joint histogram
+    private static final GlobalHistogram globalHistograms = new GlobalHistogram();
 
     private static final ConcurrentMap<String, TableStats> statsMap = new ConcurrentHashMap<>();
 
     static final int IOCOSTPERPAGE = 1000;
+
+    public static JointHistogram getJointHistogram(String table1Alias, String table2Alias, String field1PureName, String field2PureName) throws NoSuchElementException {
+        String key = String.format("%s.%s_%s.%s", table1Alias, field1PureName, table2Alias, field2PureName);
+        return globalHistograms.getJointHistogram(key);
+    }
+    public static void computeGlobalHistograms() {
+        globalHistograms.compute();
+    }
 
     public static TableStats getTableStats(String tablename) {
         return statsMap.get(tablename);
@@ -58,6 +137,7 @@ public class TableStats {
             TableStats s = new TableStats(tableid, IOCOSTPERPAGE);
             setTableStats(Database.getCatalog().getTableName(tableid), s);
         }
+//        TableStats.globalHistograms.compute();
         System.out.println("Done.");
     }
 
@@ -87,7 +167,65 @@ public class TableStats {
         // necessarily have to (for example) do everything
         // in a single scan of the table.
         // some code goes here
+        this.ioCostPerPage = ioCostPerPage;
+        histograms = new ArrayList();
+        dbFile = Database.getCatalog().getDatabaseFile(tableid);
+        TupleDesc tupleDesc = dbFile.getTupleDesc();
+        //第一次扫表获取int字段的最大值，最小值,max[i][0]记录最大值，max[i][1]记录最小值
+        int[][] max_min = new int[tupleDesc.numFields()][2];
+        for (int i = 0; i < max_min.length; i++) {
+            max_min[i][0] = Integer.MIN_VALUE;
+            max_min[i][1] = Integer.MAX_VALUE;
+        }
+        globalHistograms.addMaxMin(tableid, max_min);
+        DbFileIterator iter = dbFile.iterator(new TransactionId());
+        try {
+            iter.open();
+            while (iter.hasNext()) {
+                Tuple next = iter.next();
+                for (int i = 0; i < tupleDesc.numFields(); i++) {
+                    if (tupleDesc.getFieldType(i).equals(Type.INT_TYPE)) {
+                        int num = ((IntField)next.getField(i)).getValue();
+                        max_min[i][0] = Math.max(max_min[i][0], num);
+                        max_min[i][1] = Math.min(max_min[i][1], num);
+                    }
+                }
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
+        //建立single column histogram
+        for (int i = 0; i < tupleDesc.numFields(); i++) {
+            if (tupleDesc.getFieldType(i).equals(Type.INT_TYPE)) {
+                histograms.add(new IntHistogram(NUM_HIST_BINS, max_min[i][1], max_min[i][0]));
+            } else {
+                histograms.add(new StringHistogram(NUM_HIST_BINS));
+            }
+        }
+
+        //向single histogram里插入元素
+        try {
+            iter.rewind();
+            while (iter.hasNext()) {
+                Tuple next = iter.next();
+                ntups++;
+                for (int i = 0; i < tupleDesc.numFields(); i++) {
+                    if (tupleDesc.getFieldType(i).equals(Type.INT_TYPE)) {
+                        IntHistogram intHistogram = (IntHistogram) histograms.get(i);
+                        intHistogram.addValue(((IntField)next.getField(i)).getValue());
+                    } else {
+                        StringHistogram stringHistogram = (StringHistogram) histograms.get(i);
+                        stringHistogram.addValue(((StringField)next.getField(i)).getValue());
+                    }
+                }
+            }
+            iter.close();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
+
 
     /**
      * Estimates the cost of sequentially scanning the file, given that the cost
@@ -102,8 +240,13 @@ public class TableStats {
      * @return The estimated cost of scanning the table.
      */
     public double estimateScanCost() {
-        // some code goes here
-        return 0;
+        if (dbFile instanceof HeapFile) {
+            return ((HeapFile) dbFile).numPages() * ioCostPerPage;
+        } else if (dbFile instanceof BTreeFile) {
+            return ((BTreeFile) dbFile).numPages() * ioCostPerPage;
+        } else {
+            throw new IllegalStateException(String.format("the DBFile's Class[%s] doesn't support numPages method", dbFile.getClass()));
+        }
     }
 
     /**
@@ -116,8 +259,7 @@ public class TableStats {
      *         selectivityFactor
      */
     public int estimateTableCardinality(double selectivityFactor) {
-        // some code goes here
-        return 0;
+        return (int) (ntups * selectivityFactor);
     }
 
     /**
@@ -131,8 +273,11 @@ public class TableStats {
      * expected selectivity. You may estimate this value from the histograms.
      * */
     public double avgSelectivity(int field, Predicate.Op op) {
-        // some code goes here
-        return 1.0;
+        if (dbFile.getTupleDesc().getFieldType(field).equals(Type.INT_TYPE)) {
+            return ((IntHistogram)histograms.get(field)).avgSelectivity();
+        } else {
+            return ((StringHistogram)histograms.get(field)).avgSelectivity();
+        }
     }
 
     /**
@@ -149,16 +294,22 @@ public class TableStats {
      *         predicate
      */
     public double estimateSelectivity(int field, Predicate.Op op, Field constant) {
-        // some code goes here
-        return 1.0;
+        if (histograms.get(field).getClass().equals(IntHistogram.class) && constant.getType().equals(Type.INT_TYPE)) {
+            IntHistogram intHistogram = (IntHistogram) histograms.get(field);
+            return intHistogram.estimateSelectivity(op, ((IntField)constant).getValue());
+        } else if (histograms.get(field).getClass().equals(StringHistogram.class) && constant.getType().equals(Type.STRING_TYPE)) {
+            StringHistogram stringHistogram = (StringHistogram) histograms.get(field);
+            return stringHistogram.estimateSelectivity(op, ((StringField)constant).getValue());
+        }
+        throw new IllegalArgumentException(String.format("the histogram's type[%s] mismatch constant's type[%s]",
+                histograms.get(field).getClass().toString(), constant.getType().toString()));
     }
 
     /**
      * return the total number of tuples in this table
      * */
     public int totalTuples() {
-        // some code goes here
-        return 0;
+        return ntups;
     }
 
 }

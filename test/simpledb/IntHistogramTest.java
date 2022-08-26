@@ -4,7 +4,7 @@ import org.junit.Test;
 import org.junit.Assert;
 
 import simpledb.execution.Predicate.Op;
-import simpledb.optimizer.IntHistogram;
+import simpledb.optimizer.histogram.IntHistogram;
 
 public class IntHistogramTest {
 
