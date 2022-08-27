@@ -21,6 +21,7 @@ public class JointHistogram {
     private int min;
     private int max;
 
+    //constructor for Integer
     public JointHistogram(int buckets, int min, int max) {
         if (max-min+1 < buckets) {
             buckets = max - min + 1;
@@ -33,6 +34,7 @@ public class JointHistogram {
         bBorder = new int[2];
     }
 
+    //constructor for String
     public JointHistogram(int buckets) {
         this(buckets, StringHistogram.minVal(), StringHistogram.maxVal());
     }
@@ -85,7 +87,6 @@ public class JointHistogram {
             throw new IllegalArgumentException(String.format("the type of v[%s] is not Integer or String", v.getClass().toString()));
         }
     }
-
 
     public void addValueByIterator(DbFileIterator iter1, int column1, DbFileIterator iter2, int column2) {
         DbFileIterator[] iters = new DbFileIterator[]{iter1, iter2};

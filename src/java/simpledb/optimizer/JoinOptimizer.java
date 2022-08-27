@@ -280,10 +280,13 @@ public class JoinOptimizer {
             }
         }
         List<LogicalJoinNode> orderedJoins = planCache.getOrder(new HashSet<>(joins));
-        if (explain) {
-            printJoins(orderedJoins, planCache, stats, filterSelectivities);
+        if (orderedJoins != null) {
+            if (explain) {
+                printJoins(orderedJoins, planCache, stats, filterSelectivities);
+            }
+            return orderedJoins;
         }
-        return orderedJoins;
+        return joins;
     }
 
     // ===================== Private Methods =================================

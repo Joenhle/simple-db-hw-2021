@@ -86,6 +86,7 @@ public class SimpleDb {
                     Class<?> s = String[].class;
 
                     java.lang.reflect.Method m = c.getMethod("main", s);
+
                     m.invoke(null, (Object) newargs);
                 } catch (ClassNotFoundException cne) {
                     System.out.println("Class Parser not found -- perhaps you are trying to run the parser as a part of lab1?");
