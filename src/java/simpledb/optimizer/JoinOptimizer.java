@@ -48,8 +48,7 @@ public class JoinOptimizer {
      * @param plan2
      *            The right join node's child
      */
-    public static OpIterator instantiateJoin(LogicalJoinNode lj,
-                                             OpIterator plan1, OpIterator plan2) throws ParsingException {
+    public static OpIterator instantiateJoin(LogicalJoinNode lj, OpIterator plan1, OpIterator plan2) throws ParsingException {
 
         int t1id = 0, t2id = 0;
         OpIterator j;
@@ -171,11 +170,7 @@ public class JoinOptimizer {
     /**
      * Estimate the join cardinality of two tables.
      * */
-    public static int estimateTableJoinCardinality(Predicate.Op joinOp,
-                                                   String table1Alias, String table2Alias, String field1PureName,
-                                                   String field2PureName, int card1, int card2, boolean t1pkey,
-                                                   boolean t2pkey, Map<String, TableStats> stats,
-                                                   Map<String, Integer> tableAliasToId) {
+    public static int estimateTableJoinCardinality(Predicate.Op joinOp, String table1Alias, String table2Alias, String field1PureName, String field2PureName, int card1, int card2, boolean t1pkey, boolean t2pkey, Map<String, TableStats> stats, Map<String, Integer> tableAliasToId) {
 
         String tableName1 = Database.getCatalog().getTableName(tableAliasToId.get(table1Alias)),
                 tableName2 = Database.getCatalog().getTableName(tableAliasToId.get(table2Alias));
@@ -223,25 +218,30 @@ public class JoinOptimizer {
      * @return a set of all subsets of the specified size
      */
     public <T> Set<Set<T>> enumerateSubsets(List<T> v, int size) {
-        Set<Set<T>> els = new HashSet<>();
-        els.add(new HashSet<>());
-        // Iterator<Set> it;
-        // long start = System.currentTimeMillis();
-
-        for (int i = 0; i < size; i++) {
-            Set<Set<T>> newels = new HashSet<>();
-            for (Set<T> s : els) {
-                for (T t : v) {
-                    Set<T> news = new HashSet<>(s);
-                    if (news.add(t))
-                        newels.add(news);
+        Set<Set<T>> res = new HashSet<>();
+        Set<T> temp = new HashSet<>();
+        int[] arr = new int[size];
+        int level = 0;
+        while (true) {
+            while (arr[level] < v.size()) {
+                if (level == size-1) {
+                    temp.clear();
+                    for (int i = 0; i < arr.length; i++) {
+                        temp.add(v.get(arr[i]));
+                    }
+                    res.add(new HashSet<>(temp));
+                    arr[level]++;
+                } else {
+                    level++;
+                    arr[level] = arr[level-1] + 1;
                 }
             }
-            els = newels;
+            if (--level < 0) {
+                break;
+            }
+            arr[level]++;
         }
-
-        return els;
-
+        return res;
     }
 
     /**
