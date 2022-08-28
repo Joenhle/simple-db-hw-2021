@@ -57,6 +57,25 @@ public class SystemTestUtil {
         return Utility.openHeapFile(columns, colPrefix, temp);
     }
 
+    public static HeapFile createRangeHeapFile(int[][] columnRange, String colPrefix) throws IOException {
+        int row = Integer.MAX_VALUE;
+        for (int[] range : columnRange) {
+            row = Math.min(row, range[1] - range[0]);
+        }
+        List<List<Integer>> tuples = new ArrayList<>(row);
+        for (int i = 0; i < row; i++) {
+            List<Integer> tuple = new ArrayList<>(columnRange.length);
+            for (int j = 0; j < columnRange.length; j++) {
+                tuple.add(columnRange[j][0] + i);
+            }
+            tuples.add(tuple);
+        }
+        File temp = File.createTempFile("table", ".dat");
+        temp.deleteOnExit();
+        HeapFileEncoder.convert(tuples, temp, BufferPool.getPageSize(), columnRange.length);
+        return Utility.openHeapFile(columnRange.length, colPrefix, temp);
+    }
+
     public static File createRandomHeapFileUnopened(int columns, int rows,
             int maxValue, Map<Integer, Integer> columnSpecification,
             List<List<Integer>> tuples) throws IOException {
