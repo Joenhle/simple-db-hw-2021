@@ -1,6 +1,7 @@
 package simpledb.execution;
 
 import simpledb.common.Database;
+import simpledb.optimizer.TableStats;
 import simpledb.transaction.TransactionAbortedException;
 import simpledb.transaction.TransactionId;
 import simpledb.common.Type;
@@ -126,5 +127,9 @@ public class SeqScan implements OpIterator {
 
     public void rewind() throws DbException, NoSuchElementException, TransactionAbortedException {
         iterator.rewind();
+    }
+
+    public int getEstimatedCardinality() {
+        return TableStats.getTableStats(Database.getCatalog().getTableName(tableId)).estimateTableCardinality(1);
     }
 }

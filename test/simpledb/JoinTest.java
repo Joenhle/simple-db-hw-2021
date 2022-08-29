@@ -9,10 +9,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import simpledb.common.Utility;
-import simpledb.execution.Join;
-import simpledb.execution.JoinPredicate;
-import simpledb.execution.OpIterator;
-import simpledb.execution.Predicate;
+import simpledb.execution.*;
 import simpledb.storage.Tuple;
 import simpledb.storage.TupleDesc;
 import simpledb.systemtest.SimpleDbTestBase;
@@ -69,6 +66,10 @@ public class JoinTest extends SimpleDbTestBase {
     TupleDesc expected = Utility.getTupleDesc(width1 + width2);
     TupleDesc actual = op.getTupleDesc();
     assertEquals(expected, actual);
+
+    //sort merge join
+    MergeJoin mergeJoin = new MergeJoin(pred, scan1, scan2);
+    assertEquals(expected, mergeJoin.getTupleDesc());
   }
 
   /**
@@ -94,11 +95,19 @@ public class JoinTest extends SimpleDbTestBase {
    * Unit scantest for Join.getNext() using a &gt; predicate
    */
   @Test public void gtJoin() throws Exception {
+    //nested loop join
     JoinPredicate pred = new JoinPredicate(0, Predicate.Op.GREATER_THAN, 0);
     Join op = new Join(pred, scan1, scan2);
     op.open();
     gtJoin.open();
     TestUtil.matchAllTuples(gtJoin, op);
+
+    //sort merge join
+    MergeJoin mergeJoin = new MergeJoin(pred, scan1, scan2);
+    mergeJoin.open();
+    mergeJoin.rewind();
+    gtJoin.rewind();
+    TestUtil.matchAllTuples(gtJoin, mergeJoin);
   }
 
   /**
@@ -110,6 +119,13 @@ public class JoinTest extends SimpleDbTestBase {
     op.open();
     eqJoin.open();
     TestUtil.matchAllTuples(eqJoin, op);
+
+    //sort merge join
+    MergeJoin mergeJoin = new MergeJoin(pred, scan1, scan2);
+    mergeJoin.open();
+    mergeJoin.rewind();
+    eqJoin.rewind();
+    TestUtil.matchAllTuples(eqJoin, mergeJoin);
   }
 
   /**

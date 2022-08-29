@@ -4,6 +4,7 @@ import simpledb.execution.Predicate;
 import simpledb.common.Type;
 
 import java.io.*;
+import java.util.Comparator;
 
 /**
  * Interface for values of fields in tuples in SimpleDB.

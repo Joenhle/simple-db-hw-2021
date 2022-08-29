@@ -72,23 +72,24 @@ public class JoinOptimizer {
         }
 
         JoinPredicate p = new JoinPredicate(t1id, lj.p, t2id);
-
-        if (lj.p == Predicate.Op.EQUALS) {
-
-            try {
-                // dynamically load HashEquiJoin -- if it doesn't exist, just
-                // fall back on regular join
-                Class<?> c = Class.forName("simpledb.execution.HashEquiJoin");
-                java.lang.reflect.Constructor<?> ct = c.getConstructors()[0];
-                j = (OpIterator) ct
-                        .newInstance(new Object[] { p, plan1, plan2 });
-            } catch (Exception e) {
+        boolean bothBaseTable = plan1 instanceof SeqScan && plan2 instanceof SeqScan;
+        switch (lj.joinMethod) {
+            case NestedLoop:
                 j = new Join(p, plan1, plan2);
-            }
-        } else {
-            j = new Join(p, plan1, plan2);
+                /** logicalQuery plan 向execute operator{Join,HashJoin,MergeJoin}传递信息，方便{@link OperatorCardinality}进行更新cardinality*/
+                ((Join) j).bothBaseTable = bothBaseTable;
+                break;
+            case HashJoin:
+                j = new HashEquiJoin(p, plan1, plan2);
+                ((HashEquiJoin) j).bothBaseTable = bothBaseTable;
+                break;
+            case MergeJoin:
+                j = new MergeJoin(p, plan1, plan2);
+                ((MergeJoin) j).bothBaseTable = bothBaseTable;
+                break;
+            default:
+                throw new IllegalArgumentException("No such join method");
         }
-
         return j;
 
     }
@@ -129,12 +130,32 @@ public class JoinOptimizer {
             // HINT: You may need to use the variable "j" if you implemented
             // a join algorithm that's more complicated than a basic
             // nested-loops join.
+            double[] nestedLoopJoinCost = new double[]{cost1 + card1 * cost2 + card1 * card2, 0};
+            double[] hashJoinCost = new double[]{cost1 + cost2 + card1 + card2, 1};
+            double[] mergeJoinCost = new double[]{cost1 + cost2 + card1*Math.log(card1) + card2*Math.log(card2) + (double) card1*card1/2, 2};
+            double[][] temp = new double[][]{nestedLoopJoinCost, hashJoinCost, mergeJoinCost};
+            Arrays.sort(temp, (a, b) -> {return Double.compare(a[0], b[0]);});
+            if (j.p.equals(Predicate.Op.EQUALS)) {
+                j.joinMethod = JoinMethod.get((int) temp[0][1]);
+                return temp[0][0];
+            } else {
+                int best = 0;
+                if (temp[0][1] == 1) {
+                    best = 1;
+                }
+                j.joinMethod = JoinMethod.get((int) temp[best][1]);
+                return temp[best][0];
+            }
+        }
+    }
 
-            //这里采用的是nl join，所以不需要用到j，以后可以实现多个j
-            //todo 以后可以对join进行扩展，这里的cost也需要重新计算。
-            double IOCost = cost1 + card1 * cost2;
-            double CPUCost = card1 * card2;
-            return IOCost + CPUCost;
+    public int estimateJoinCardinality(boolean bothBaseTable, LogicalJoinNode j, int card1, int card2, boolean t1pkey, boolean t2pkey, Map<String, TableStats> stats) {
+        if (j instanceof LogicalSubplanJoinNode) {
+            // A LogicalSubplanJoinNode represents a subquery.
+            // You do not need to implement proper support for these for Lab 3.
+            return card1;
+        } else {
+            return estimateTableJoinCardinality(bothBaseTable, j.p, j.t1Alias, j.t2Alias, j.f1PureName, j.f2PureName, card1, card2, t1pkey, t2pkey, stats, p.getTableAliasToIdMapping());
         }
     }
 
@@ -163,20 +184,20 @@ public class JoinOptimizer {
             // You do not need to implement proper support for these for Lab 3.
             return card1;
         } else {
-            return estimateTableJoinCardinality(j.p, j.t1Alias, j.t2Alias, j.f1PureName, j.f2PureName, card1, card2, t1pkey, t2pkey, stats, p.getTableAliasToIdMapping());
+            return estimateTableJoinCardinality(true, j.p, j.t1Alias, j.t2Alias, j.f1PureName, j.f2PureName, card1, card2, t1pkey, t2pkey, stats, p.getTableAliasToIdMapping());
         }
     }
 
     /**
      * Estimate the join cardinality of two tables.
      * */
-    public static int estimateTableJoinCardinality(Predicate.Op joinOp, String table1Alias, String table2Alias, String field1PureName, String field2PureName, int card1, int card2, boolean t1pkey, boolean t2pkey, Map<String, TableStats> stats, Map<String, Integer> tableAliasToId) {
+    public static int estimateTableJoinCardinality(boolean bothBaseTable, Predicate.Op joinOp, String table1Alias, String table2Alias, String field1PureName, String field2PureName, int card1, int card2, boolean t1pkey, boolean t2pkey, Map<String, TableStats> stats, Map<String, Integer> tableAliasToId) {
 
         String tableName1 = Database.getCatalog().getTableName(tableAliasToId.get(table1Alias)),
                 tableName2 = Database.getCatalog().getTableName(tableAliasToId.get(table2Alias));
 
         JointHistogram jointHistogram = TableStats.getJointHistogram(tableName1, tableName2, field1PureName, field2PureName);
-        if (jointHistogram != null) {
+        if (bothBaseTable && jointHistogram != null) {
             int cardinality = jointHistogram.estimateCardinality(joinOp);
             System.out.println(String.format("JointHistogram success, the jointHistogram cardinality of %s.%s %s %s.%s is %d", tableName1, field1PureName, joinOp.toString(), tableName2, field2PureName, cardinality));
             if (t1pkey && !t2pkey) {
@@ -199,7 +220,7 @@ public class JoinOptimizer {
                 }
                 return Math.max(card1, card2);
             } else if (joinOp.equals(Predicate.Op.NOT_EQUALS)) {
-                return card1 * card2 - estimateTableJoinCardinality(Predicate.Op.EQUALS, table1Alias, table2Alias, field1PureName, field2PureName, card1, card2, t1pkey, t2pkey, stats, tableAliasToId);
+                return card1 * card2 - estimateTableJoinCardinality(bothBaseTable, Predicate.Op.EQUALS, table1Alias, table2Alias, field1PureName, field2PureName, card1, card2, t1pkey, t2pkey, stats, tableAliasToId);
             } else {
                 return (int) (0.3 * card1 * card2);
             }
@@ -350,6 +371,7 @@ public class JoinOptimizer {
         double t1cost, t2cost;
         int t1card, t2card;
         boolean leftPkey, rightPkey;
+        boolean bothBaseTable = true;
 
         if (news.isEmpty()) { // base case -- both are base relations
             prevBest = new ArrayList<>();
@@ -366,6 +388,7 @@ public class JoinOptimizer {
             rightPkey = table2Alias != null && isPkey(table2Alias,
                     j.f2PureName);
         } else {
+            bothBaseTable = false;
             // news is not empty -- figure best way to join j to news
             prevBest = pc.getOrder(news);
 
@@ -431,8 +454,7 @@ public class JoinOptimizer {
 
         CostCard cc = new CostCard();
 
-        cc.card = estimateJoinCardinality(j, t1card, t2card, leftPkey,
-                rightPkey, stats);
+        cc.card = estimateJoinCardinality(bothBaseTable, j, t1card, t2card, leftPkey, rightPkey, stats);
         cc.cost = cost1;
         cc.plan = new ArrayList<>(prevBest);
         cc.plan.add(j); // prevbest is left -- add new join to end

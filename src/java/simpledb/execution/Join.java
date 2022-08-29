@@ -15,6 +15,7 @@ public class Join extends Operator {
     private OpIterator child1, child2;
     private JoinPredicate predicate;
     private Tuple outerTuple;
+    public boolean bothBaseTable = true;
 
     private static final long serialVersionUID = 1L;
 

@@ -87,6 +87,13 @@ public class BufferPool {
     }
 
     /**
+     * is page in the bufferPool
+     */
+    public boolean inBuffer(PageId pid) {
+        return pageCache.containsKey(pid);
+    }
+
+    /**
      * Releases the lock on a page.
      * Calling this is very risky, and may result in wrong behavior. Think hard
      * about who needs to call this and why, and why they can run the risk of

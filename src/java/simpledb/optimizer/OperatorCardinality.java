@@ -31,6 +31,8 @@ public class OperatorCardinality {
         } else if (o instanceof HashEquiJoin) {
             return updateHashEquiJoinCardinality((HashEquiJoin) o,
                     tableAliasToId, tableStats);
+        } else if (o instanceof MergeJoin) {
+            return updateMergeJoinCardinality((MergeJoin) o, tableAliasToId, tableStats);
         } else if (o instanceof Aggregate) {
             return updateAggregateCardinality((Aggregate) o, tableAliasToId,
                     tableStats);
@@ -139,7 +141,7 @@ public class OperatorCardinality {
                     .getTableName()).estimateTableCardinality(1.0);
         }
 
-        j.setEstimatedCardinality(JoinOptimizer.estimateTableJoinCardinality(j
+        j.setEstimatedCardinality(JoinOptimizer.estimateTableJoinCardinality(j.bothBaseTable, j
                 .getJoinPredicate().getOperator(), tableAlias1, tableAlias2,
                 pureFieldName1, pureFieldName2, child1Card, child2Card,
                 child1HasJoinPK, child2HasJoinPK, tableStats, tableAliasToId));
@@ -194,8 +196,63 @@ public class OperatorCardinality {
                     .getTableName()).estimateTableCardinality(1.0);
         }
 
-        j.setEstimatedCardinality(JoinOptimizer.estimateTableJoinCardinality(j
+        j.setEstimatedCardinality(JoinOptimizer.estimateTableJoinCardinality(j.bothBaseTable, j
                 .getJoinPredicate().getOperator(), tableAlias1, tableAlias2,
+                pureFieldName1, pureFieldName2, child1Card, child2Card,
+                child1HasJoinPK, child2HasJoinPK, tableStats, tableAliasToId));
+        return child1HasJoinPK || child2HasJoinPK;
+    }
+
+    private static boolean updateMergeJoinCardinality(MergeJoin j,
+                                                         Map<String, Integer> tableAliasToId,
+                                                         Map<String, TableStats> tableStats) {
+
+        OpIterator[] children = j.getChildren();
+        OpIterator child1 = children[0];
+        OpIterator child2 = children[1];
+        int child1Card = 1;
+        int child2Card = 1;
+
+        String[] tmp1 = j.getJoinField1Name().split("[.]");
+        String tableAlias1 = tmp1[0];
+        String pureFieldName1 = tmp1[1];
+        String[] tmp2 = j.getJoinField2Name().split("[.]");
+        String tableAlias2 = tmp2[0];
+        String pureFieldName2 = tmp2[1];
+
+        boolean child1HasJoinPK = Database.getCatalog()
+                .getPrimaryKey(tableAliasToId.get(tableAlias1))
+                .equals(pureFieldName1);
+        boolean child2HasJoinPK = Database.getCatalog()
+                .getPrimaryKey(tableAliasToId.get(tableAlias2))
+                .equals(pureFieldName2);
+
+        if (child1 instanceof Operator) {
+            Operator child1O = (Operator) child1;
+            boolean pk = updateOperatorCardinality(child1O, tableAliasToId,
+                    tableStats);
+            child1HasJoinPK = pk || child1HasJoinPK;
+            child1Card = child1O.getEstimatedCardinality();
+            child1Card = child1Card > 0 ? child1Card : 1;
+        } else if (child1 instanceof SeqScan) {
+            child1Card = tableStats.get(((SeqScan) child1)
+                    .getTableName()).estimateTableCardinality(1.0);
+        }
+
+        if (child2 instanceof Operator) {
+            Operator child2O = (Operator) child2;
+            boolean pk = updateOperatorCardinality(child2O, tableAliasToId,
+                    tableStats);
+            child2HasJoinPK = pk || child2HasJoinPK;
+            child2Card = child2O.getEstimatedCardinality();
+            child2Card = child2Card > 0 ? child2Card : 1;
+        } else if (child2 instanceof SeqScan) {
+            child2Card = tableStats.get(((SeqScan) child2)
+                    .getTableName()).estimateTableCardinality(1.0);
+        }
+
+        j.setEstimatedCardinality(JoinOptimizer.estimateTableJoinCardinality(j.bothBaseTable, j
+                        .getJoinPredicate().getOperator(), tableAlias1, tableAlias2,
                 pureFieldName1, pureFieldName2, child1Card, child2Card,
                 child1HasJoinPK, child2HasJoinPK, tableStats, tableAliasToId));
         return child1HasJoinPK || child2HasJoinPK;

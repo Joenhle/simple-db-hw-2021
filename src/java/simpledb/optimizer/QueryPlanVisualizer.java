@@ -12,6 +12,7 @@ public class QueryPlanVisualizer {
 
     static final String JOIN = "⨝";
     static final String HASH_JOIN = "⨝(hash)";
+    static final String MERGE_JOIN = "⨝(merge)";
     static final String SELECT = "σ";
     static final String PROJECT = "π";
     static final String RENAME = "ρ";
@@ -29,7 +30,7 @@ public class QueryPlanVisualizer {
         Operator o = (Operator) root;
         OpIterator[] children = o.getChildren();
 
-        if (o instanceof Join || o instanceof HashEquiJoin) {
+        if (o instanceof Join || o instanceof HashEquiJoin || o instanceof MergeJoin) {
             int d1 = this.calculateQueryPlanTreeDepth(children[0]);
             int d2 = this.calculateQueryPlanTreeDepth(children[1]);
             return Math.max(d1, d2) + 3;
@@ -77,7 +78,7 @@ public class QueryPlanVisualizer {
             else
                 alias = "";
             thisNode.text = String
-                    .format("%1$s(%2$s)", SCAN, tableName + alias);
+                    .format("%1$s(%2$s),card:%3$d", SCAN, tableName + alias, s.getEstimatedCardinality());
             if (SCAN.length() / 2 < parentUpperBarStartShift) {
                 thisNode.upBarPosition = currentStartPosition
                         + parentUpperBarStartShift;
@@ -159,6 +160,34 @@ public class QueryPlanVisualizer {
                 thisNode.upBarPosition = (left.upBarPosition + right.upBarPosition) / 2;
                 thisNode.textStartPosition = thisNode.upBarPosition
                         - HASH_JOIN.length() / 2;
+                thisNode.width = Math.max(
+                        left.width + right.width + SPACE.length(),
+                        thisNode.textStartPosition + thisNode.text.length()
+                                - currentStartPosition);
+                thisNode.leftChild = left;
+                thisNode.rightChild = right;
+                thisNode.height = currentDepth;
+            } else if (plan instanceof  MergeJoin) {
+                MergeJoin j = (MergeJoin) plan;
+                JoinPredicate jp = j.getJoinPredicate();
+                TupleDesc td = j.getTupleDesc();
+                String field1 = td.getFieldName(jp.getField1());
+                String field2 = td.getFieldName(jp.getField2()
+                        + children[0].getTupleDesc().numFields());
+                thisNode.text = String.format("%1$s(%2$s),card:%3$d", MERGE_JOIN, field1
+                        + jp.getOperator() + field2,j.getEstimatedCardinality());
+                int upBarShift = parentUpperBarStartShift;
+                if (MERGE_JOIN.length() / 2 > parentUpperBarStartShift)
+                    upBarShift = MERGE_JOIN.length() / 2;
+                SubTreeDescriptor left = this.buildTree(queryPlanDepth,
+                        currentDepth + 3 + adjustDepth, children[0],
+                        currentStartPosition, upBarShift);
+                SubTreeDescriptor right = this.buildTree(queryPlanDepth,
+                        currentDepth + 3 + adjustDepth, children[1],
+                        currentStartPosition + left.width + SPACE.length(), 0);
+                thisNode.upBarPosition = (left.upBarPosition + right.upBarPosition) / 2;
+                thisNode.textStartPosition = thisNode.upBarPosition
+                        - MERGE_JOIN.length() / 2;
                 thisNode.width = Math.max(
                         left.width + right.width + SPACE.length(),
                         thisNode.textStartPosition + thisNode.text.length()

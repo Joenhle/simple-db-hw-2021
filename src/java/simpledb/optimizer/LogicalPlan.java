@@ -355,13 +355,15 @@ public class LogicalPlan {
             boolean isSubqueryJoin = lj instanceof LogicalSubplanJoinNode;
             String t1name, t2name;
 
-            if (equivMap.get(lj.t1Alias) != null)
+            if (equivMap.get(lj.t1Alias) != null){
                 t1name = equivMap.get(lj.t1Alias);
+            }
             else
                 t1name = lj.t1Alias;
 
-            if (equivMap.get(lj.t2Alias) != null)
+            if (equivMap.get(lj.t2Alias) != null) {
                 t2name = equivMap.get(lj.t2Alias);
+            }
             else
                 t2name = lj.t2Alias;
 

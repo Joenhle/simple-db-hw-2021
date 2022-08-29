@@ -95,6 +95,20 @@ public class HeapFile implements DbFile {
         return (int) file.length()/BufferPool.getPageSize();
     }
 
+    /**
+     * get the number of page that hit bufferPool
+     */
+    public int numHitBuffer() {
+        int count = 0;
+        for (int i = 0; i < numPages(); i++) {
+            boolean hit = Database.getBufferPool().inBuffer(new HeapPageId(getId(), i));
+            if (hit) {
+                count++;
+            }
+        }
+        return count;
+    }
+
     // see DbFile.java for javadocs
     public List<Page> insertTuple(TransactionId tid, Tuple t) throws DbException, IOException, TransactionAbortedException {
         for (int i = 0; i < numPages(); i++) {

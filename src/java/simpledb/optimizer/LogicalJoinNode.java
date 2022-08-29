@@ -2,6 +2,24 @@ package simpledb.optimizer;
 
 import simpledb.execution.Predicate;
 
+
+enum JoinMethod {
+    NestedLoop, HashJoin, MergeJoin;
+
+    public static JoinMethod get(int index) {
+        switch (index) {
+            case 0:
+                return NestedLoop;
+            case 1:
+                return HashJoin;
+            case 2:
+                return MergeJoin;
+            default:
+                throw new IllegalArgumentException("no such join method");
+        }
+    }
+}
+
 /** A LogicalJoinNode represens the state needed of a join of two
  * tables in a LogicalQueryPlan */
 public class LogicalJoinNode {
@@ -24,6 +42,9 @@ public class LogicalJoinNode {
 
     /** The join predicate */
     public Predicate.Op p;
+
+    /** The intermediate info to help estimate the join cardinality*/
+    public JoinMethod joinMethod;
 
     public LogicalJoinNode() {
     }

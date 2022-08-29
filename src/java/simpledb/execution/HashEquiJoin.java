@@ -18,6 +18,7 @@ public class HashEquiJoin extends Operator {
     private final TupleDesc comboTD;
     transient private Tuple t1 = null;
     transient private Tuple t2 = null;
+    public boolean bothBaseTable = true;
 
     /**
      * Constructor. Accepts to children to join and the predicate to join them

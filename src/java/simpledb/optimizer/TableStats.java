@@ -116,10 +116,12 @@ public class TableStats {
      * efficiently address regions smaller than a page at a time.)
      * 
      * @return The estimated cost of scanning the table.
+     *
+     * todo lab3-bonus3 这里和join cost都没有考虑命中buffer的情况，可能需要更加tricky的buffer设计
      */
     public double estimateScanCost() {
         if (dbFile instanceof HeapFile) {
-            return ((HeapFile) dbFile).numPages() * ioCostPerPage;
+            return (((HeapFile) dbFile).numPages()) * ioCostPerPage;
         } else if (dbFile instanceof BTreeFile) {
             return ((BTreeFile) dbFile).numPages() * ioCostPerPage;
         } else {
