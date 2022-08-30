@@ -1,2 +1,1 @@
-d1 (a int, b int)
-d2 (c int, d int)
+d1 (a int)

@@ -1,5 +1,6 @@
 package simpledb.execution;
 
+import simpledb.common.Database;
 import simpledb.optimizer.LogicalPlan;
 import simpledb.transaction.TransactionAbortedException;
 import simpledb.transaction.TransactionId;
@@ -116,7 +117,15 @@ public class Query implements Serializable {
         int cnt = 0;
         while (this.hasNext()) {
             Tuple tup = this.next();
-            System.out.println(tup);
+            if (Database.isDebug()) {
+                if (cnt < 100) {
+                    System.out.println(tup);
+                } else if (cnt == 100) {
+                    System.out.println("...");
+                }
+            } else {
+                System.out.println(tup);
+            }
             cnt++;
         }
         System.out.println("\n " + cnt + " rows.");

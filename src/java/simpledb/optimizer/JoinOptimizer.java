@@ -286,22 +286,26 @@ public class JoinOptimizer {
      *             join, or or when another internal error occurs
      */
     public List<LogicalJoinNode> orderJoins(Map<String, TableStats> stats, Map<String, Double> filterSelectivities, boolean explain) throws ParsingException {
+        if (joins.size() == 0) {
+            return joins;
+        }
+
         PlanCache planCache = new PlanCache();
         for (int i = 1; i <= joins.size(); i++) {
             for (Set<LogicalJoinNode> s : enumerateSubsets(joins, i)) {
-                CostCard bestPlan = new CostCard();
-                bestPlan.cost = Double.MAX_VALUE;
+                CostCard[] bestPlan = null;
                 for (LogicalJoinNode node : s) {
-                    CostCard costCard = computeCostAndCardOfSubplan(stats, filterSelectivities, node, s, bestPlan.cost, planCache);
+                    CostCard[] costCard = computeCostAndCardOfSubplan(stats, filterSelectivities, node, s, bestPlan, planCache);
                     if (costCard != null) {
                         bestPlan = costCard;
                     }
                 }
-                planCache.addPlan(s, bestPlan.cost, bestPlan.card, bestPlan.plan);
+                planCache.addPlan(s, bestPlan);
             }
         }
-        List<LogicalJoinNode> orderedJoins = planCache.getOrder(new HashSet<>(joins));
-        if (orderedJoins != null) {
+        CostCard[] bestPlan = planCache.getPlan(new HashSet<>(joins));
+        List<LogicalJoinNode> orderedJoins = null;
+        if (bestPlan.length == 1 && (orderedJoins = bestPlan[0].plan) != null) {
             if (explain) {
                 printJoins(orderedJoins, planCache, stats, filterSelectivities);
             }
@@ -312,12 +316,110 @@ public class JoinOptimizer {
 
     // ===================== Private Methods =================================
 
+    private CostCard swapAndCompareJoinCost(List<LogicalJoinNode> prevBestPlan, LogicalJoinNode j, int card1, int card2, double cost1, double cost2, boolean leftPkey, boolean rightPkey, boolean bothBaseTable, Map<String, TableStats> stats) {
+        double joinCost1 = estimateJoinCost(j, card1, card2, cost1, cost2);
+        LogicalJoinNode j2 = j.swapInnerOuter();
+        double joinCost2 = estimateJoinCost(j2, card2, card1, cost2, cost1);
+        if (joinCost2 < joinCost1) {
+            boolean tmp;
+            j = j2;
+            joinCost1 = joinCost2;
+            tmp = rightPkey;
+            rightPkey = leftPkey;
+            leftPkey = tmp;
+        }
+        CostCard cc = new CostCard();
+        cc.card = estimateJoinCardinality(bothBaseTable, j, card1, card2, leftPkey, rightPkey, stats);
+        cc.cost = joinCost1;
+        cc.plan = new ArrayList<>(prevBestPlan);
+        cc.plan.add(j);
+        return cc;
+    }
+
+    private CostCard getSingleNode(Map<String, TableStats> stats, Map<String, Double> filterSelectivities, LogicalJoinNode j) {
+        String table1Name = Database.getCatalog().getTableName(this.p.getTableId(j.t1Alias));
+        String table2Name = Database.getCatalog().getTableName(this.p.getTableId(j.t2Alias));
+        double t1cost = stats.get(table1Name).estimateScanCost();
+        int t1card = stats.get(table1Name).estimateTableCardinality(filterSelectivities.get(j.t1Alias));
+        boolean leftPkey = isPkey(j.t1Alias, j.f1PureName);
+        double t2cost = j.t2Alias == null ? 0 : stats.get(table2Name).estimateScanCost();
+        int t2card = j.t2Alias == null ? 0 : stats.get(table2Name).estimateTableCardinality(filterSelectivities.get(j.t2Alias));
+        boolean rightPkey = j.t2Alias != null && isPkey(j.t2Alias, j.f2PureName);
+        CostCard singleNode = swapAndCompareJoinCost(new ArrayList<>(), j, t1card, t2card, t1cost, t2cost, leftPkey, rightPkey, true, stats);
+        return singleNode;
+    }
+
+    private CostCard[] mergeJoinNode(Map<String, TableStats> stats, Map<String, Double> filterSelectivities, CostCard[] nodes, LogicalJoinNode j) {
+        String table1Name = Database.getCatalog().getTableName(this.p.getTableId(j.t1Alias));
+        String table2Name = Database.getCatalog().getTableName(this.p.getTableId(j.t2Alias));
+        String table1Alias = j.t1Alias;
+        String table2Alias = j.t2Alias;
+        double t1cost, t2cost;
+        boolean leftPkey, rightPkey;
+        int t1card, t2card;
+        if (nodes == null || nodes.length == 0) {
+            throw new IllegalArgumentException("the length of nodes should be grater than 0");
+        }
+        if (nodes.length == 1) {
+            CostCard node1 = nodes[0];
+            if (doesJoin(node1.plan, table1Alias)) {
+                t1cost = node1.cost;
+                t1card = node1.card;
+                leftPkey = hasPkey(node1.plan);
+                t2cost = j.t2Alias == null ? 0 : stats.get(table2Name).estimateScanCost();
+                t2card = j.t2Alias == null ? 0 : stats.get(table2Name).estimateTableCardinality(filterSelectivities.get(j.t2Alias));
+                rightPkey = j.t2Alias != null && isPkey(j.t2Alias, j.f2PureName);
+                CostCard merge = swapAndCompareJoinCost(node1.plan, j, t1card, t2card, t1cost, t2cost, leftPkey, rightPkey, false, stats);
+                return new CostCard[]{merge};
+            }
+            if (doesJoin(node1.plan, table2Alias)) {
+                t2cost = node1.cost; // left side just has cost of whatever
+                t2card = node1.card;
+                rightPkey = hasPkey(node1.plan);
+                t1cost = stats.get(table1Name).estimateScanCost();
+                t1card = stats.get(table1Name).estimateTableCardinality(filterSelectivities.get(j.t1Alias));
+                leftPkey = isPkey(j.t1Alias, j.f1PureName);
+                CostCard merge = swapAndCompareJoinCost(node1.plan, j, t1card, t2card, t1cost, t2cost, leftPkey, rightPkey, false, stats);
+                return new CostCard[]{merge};
+            }
+            CostCard node2 = getSingleNode(stats, filterSelectivities, j);
+            return new CostCard[]{node1, node2};
+        } else {
+            for (int m = 0; m < nodes.length; m++) {
+                for (int n = 0; n < nodes.length; n++) {
+                    CostCard node1 = nodes[m], node2 = nodes[n];
+                    if (doesJoin(node1.plan, table1Alias) && doesJoin(node2.plan, table2Alias)) {
+                        List<LogicalJoinNode> prev = new ArrayList<>(node1.plan);
+                        prev.addAll(node2.plan);
+                        leftPkey = isPkey(j.t1Alias, j.f1PureName);
+                        rightPkey = isPkey(j.t2Alias, j.f2PureName);
+                        CostCard merge = swapAndCompareJoinCost(prev, j, node1.card, node2.card, node1.cost, node2.cost, leftPkey, rightPkey, false, stats);
+                        CostCard[] res = new CostCard[nodes.length-1];
+                        int k = 0;
+                        for (int i = 0; i < nodes.length; i++) {
+                            if (i != m && i != n) {
+                                res[k++] = nodes[i];
+                            }
+                        }
+                        res[res.length-1] = merge;
+                        return res;
+                    }
+                }
+            }
+            CostCard singleNode = getSingleNode(stats, filterSelectivities, j);
+            CostCard[] res = new CostCard[nodes.length + 1];
+            System.arraycopy(nodes, 0, res, 0, nodes.length);
+            res[res.length - 1] = singleNode;
+            return res;
+        }
+    }
+
     /**
      * This is a helper method that computes the cost and cardinality of joining
      * joinToRemove to joinSet (joinSet should contain joinToRemove), given that
      * all of the subsets of size joinSet.size() - 1 have already been computed
      * and stored in PlanCache pc.
-     * 
+     *
      * @param stats
      *            table stats for all of the tables, referenced by table names
      *            rather than alias (see {@link #orderJoins})
@@ -342,123 +444,30 @@ public class JoinOptimizer {
      *             when stats, filterSelectivities, or pc object is missing
      *             tables involved in join
      */
-    @SuppressWarnings("unchecked")
-    private CostCard computeCostAndCardOfSubplan(
-            Map<String, TableStats> stats,
-            Map<String, Double> filterSelectivities,
-            LogicalJoinNode joinToRemove, Set<LogicalJoinNode> joinSet,
-            double bestCostSoFar, PlanCache pc) throws ParsingException {
-
+    private CostCard[] computeCostAndCardOfSubplan(Map<String, TableStats> stats, Map<String, Double> filterSelectivities, LogicalJoinNode joinToRemove, Set<LogicalJoinNode> joinSet, CostCard[] bestCostSoFar, PlanCache pc) throws ParsingException {
         LogicalJoinNode j = joinToRemove;
-
-        List<LogicalJoinNode> prevBest;
-
         if (this.p.getTableId(j.t1Alias) == null)
             throw new ParsingException("Unknown table " + j.t1Alias);
         if (this.p.getTableId(j.t2Alias) == null)
             throw new ParsingException("Unknown table " + j.t2Alias);
-
-        String table1Name = Database.getCatalog().getTableName(
-                this.p.getTableId(j.t1Alias));
-        String table2Name = Database.getCatalog().getTableName(
-                this.p.getTableId(j.t2Alias));
-        String table1Alias = j.t1Alias;
-        String table2Alias = j.t2Alias;
-
         Set<LogicalJoinNode> news = new HashSet<>(joinSet);
         news.remove(j);
-
-        double t1cost, t2cost;
-        int t1card, t2card;
-        boolean leftPkey, rightPkey;
-        boolean bothBaseTable = true;
-
-        if (news.isEmpty()) { // base case -- both are base relations
-            prevBest = new ArrayList<>();
-            t1cost = stats.get(table1Name).estimateScanCost();
-            t1card = stats.get(table1Name).estimateTableCardinality(
-                    filterSelectivities.get(j.t1Alias));
-            leftPkey = isPkey(j.t1Alias, j.f1PureName);
-
-            t2cost = table2Alias == null ? 0 : stats.get(table2Name)
-                    .estimateScanCost();
-            t2card = table2Alias == null ? 0 : stats.get(table2Name)
-                    .estimateTableCardinality(
-                            filterSelectivities.get(j.t2Alias));
-            rightPkey = table2Alias != null && isPkey(table2Alias,
-                    j.f2PureName);
-        } else {
-            bothBaseTable = false;
-            // news is not empty -- figure best way to join j to news
-            prevBest = pc.getOrder(news);
-
-            // possible that we have not cached an answer, if subset
-            // includes a cross product
-            if (prevBest == null) {
+        if (news.isEmpty()) { //base case -- both are base relations
+            CostCard singleNode = getSingleNode(stats, filterSelectivities, j);
+            if (bestCostSoFar != null && singleNode.cost >= bestCostSoFar[0].cost) {
                 return null;
             }
-
-            double prevBestCost = pc.getCost(news);
-            int bestCard = pc.getCard(news);
-
-            // estimate cost of right subtree
-            if (doesJoin(prevBest, table1Alias)) { // j.t1 is in prevBest
-                t1cost = prevBestCost; // left side just has cost of whatever
-                                       // left
-                // subtree is
-                t1card = bestCard;
-                leftPkey = hasPkey(prevBest);
-
-                t2cost = j.t2Alias == null ? 0 : stats.get(table2Name)
-                        .estimateScanCost();
-                t2card = j.t2Alias == null ? 0 : stats.get(table2Name)
-                        .estimateTableCardinality(
-                                filterSelectivities.get(j.t2Alias));
-                rightPkey = j.t2Alias != null && isPkey(j.t2Alias,
-                        j.f2PureName);
-            } else if (doesJoin(prevBest, j.t2Alias)) { // j.t2 is in prevbest
-                                                        // (both
-                // shouldn't be)
-                t2cost = prevBestCost; // left side just has cost of whatever
-                                       // left
-                // subtree is
-                t2card = bestCard;
-                rightPkey = hasPkey(prevBest);
-                t1cost = stats.get(table1Name).estimateScanCost();
-                t1card = stats.get(table1Name).estimateTableCardinality(
-                        filterSelectivities.get(j.t1Alias));
-                leftPkey = isPkey(j.t1Alias, j.f1PureName);
-
-            } else {
-                // don't consider this plan if one of j.t1 or j.t2
-                // isn't a table joined in prevBest (cross product)
-                return null;
-            }
+            return new CostCard[]{singleNode};
         }
-
-        // case where prevbest is left
-        double cost1 = estimateJoinCost(j, t1card, t2card, t1cost, t2cost);
-
-        LogicalJoinNode j2 = j.swapInnerOuter();
-        double cost2 = estimateJoinCost(j2, t2card, t1card, t2cost, t1cost);
-        if (cost2 < cost1) {
-            boolean tmp;
-            j = j2;
-            cost1 = cost2;
-            tmp = rightPkey;
-            rightPkey = leftPkey;
-            leftPkey = tmp;
-        }
-        if (cost1 >= bestCostSoFar)
+        CostCard[] nodes = pc.getPlan(news);
+        if (nodes == null) {
             return null;
-
-        CostCard cc = new CostCard();
-
-        cc.card = estimateJoinCardinality(bothBaseTable, j, t1card, t2card, leftPkey, rightPkey, stats);
-        cc.cost = cost1;
-        cc.plan = new ArrayList<>(prevBest);
-        cc.plan.add(j); // prevbest is left -- add new join to end
-        return cc;
+        }
+        CostCard[] merge = mergeJoinNode(stats, filterSelectivities, nodes, j);
+        if (bestCostSoFar != null && ((merge.length == 1 && bestCostSoFar.length == 1 && merge[0].cost >= bestCostSoFar[0].cost) || (merge.length > bestCostSoFar.length))) {
+            return null;
+        }
+        return merge;
     }
 
     /**
@@ -556,9 +565,11 @@ public class JoinOptimizer {
             // Double c = pc.getCost(pathSoFar);
             neither = true;
 
+            CostCard node = pc.getPlan(pathSoFar)[0];
+
             root = new DefaultMutableTreeNode("Join " + j + " (Cost ="
-                    + pc.getCost(pathSoFar) + ", card = "
-                    + pc.getCard(pathSoFar) + ")");
+                    + node.cost + ", card = "
+                    + node.card+ ")");
             DefaultMutableTreeNode n = m.get(j.t1Alias);
             if (n == null) { // never seen this table before
                 n = new DefaultMutableTreeNode(j.t1Alias

@@ -304,6 +304,7 @@ public class Parser {
                 m.invoke(null, physicalPlan,
                         lp.getTableAliasToIdMapping(), TableStats.getStatsMap());
                 c = Class.forName("simpledb.optimizer.QueryPlanVisualizer");
+
                 m = c.getMethod(
                         "printQueryPlanTree", OpIterator.class, System.out.getClass());
                 m.invoke(c.newInstance(), physicalPlan,System.out);
